@@ -9,11 +9,14 @@ namespace bt {
 
 class Player {
 public: 
-
+    enum ComStatus {
+        SUCCESS,
+        FAILURE
+    }; 
     /**
      * @brief: The size of the buffer that allocated per player
      */
-    const static size_t INIT_BUFFER_SIZE = 1024; 
+    const static size_t BUFFER_SIZE = 512; 
 
     /**
      * @brief: Construct player that is connecting at the specified socket file
@@ -22,50 +25,45 @@ public:
     Player(int socketFd); 
 
     /**
-     * @brief: Return the begining of the available buffer
+     * @brief: Get the socket filedescriptor of the player as playerId
      */
-    char* buffer(); 
-
-    /**
-     * @brief: Return the size of the available buffer
-     */
-    size_t bufferSize() const; 
-
-    /**
-     * @brief: Get the socket filedescriptor of the player
-     */
-    int socketFd() const {
+    int id() const {
         return d_socketFd; 
     }
 
     /**
-     * @brief: Get the next message from the player buffer
+     * @brief: Receive message from the client player and save to buffer
      */
-    int readNextMsg(char* msg); 
+    int receiveMsg(); 
 
     /**
-     * @brief: Send message to the player
+     * @brief: Send message to the player from the buffer
      */
-    int sendMsg(const char* msg); 
+    int sendMsg(); 
+
+    /**
+     * @brief: Add message to the buffer queue to be sent to the client player
+     */
+    int prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength); 
+
+    /**
+     * @brief: Get message from the buffer
+     */
+    int readNextMsgReceived(unsigned char* msgId, char* msg); 
 
 private: 
     // storage buffer
-    char d_buffer[2014]; 
+    char d_readBuffer[BUFFER_SIZE]; 
+    char d_writeBuffer[BUFFER_SIZE]; 
     // buffer length
-    size_t d_bufferLength; 
+    size_t d_rbUsed; 
+    size_t d_wbUsed; 
     // socket fd
     int d_socketFd; 
     // Socket handler
     ConnectSocket d_socket; 
 }; 
 
-inline char* Player::buffer() {
-    return d_buffer + d_bufferLength; 
-}
-
-inline size_t Player::bufferSize() const {
-    return 2014 - d_bufferLength; 
-}
     
 }
 
