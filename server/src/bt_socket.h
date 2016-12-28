@@ -4,15 +4,13 @@
 
 namespace bt {
 
-class Server; 
-
-class Socket {
+class ListenSocket {
 public:
     /**
      * @brief: Start the new listening socket
      * @param[in] port: Port number the socket binds to
      */
-    Socket(int port); 
+    ListenSocket(int port); 
 
     /**
      * @brief: Check for new connection on the socket
@@ -21,26 +19,36 @@ public:
      */
     int receiveNewConnection(); 
 
+private:
+    // listening port
+    int d_port; 
+    // file descriptor
+    int d_listenerfd; 
+};
+
+class ConnectSocket {
+public: 
+    ConnectSocket(int fd); 
+
     /**
      * @brief: Receive data from the given socket if any
-     * @param[in] fd: FileDescriptor of the socket to receive data from
      * @param[in] buffer: buffer to store the received data
      * @param[in] buffersize: buffer size
      * @return: number of bytes received, or negative value if error occurs
      */
-    int receiveData(int fd, char* buffer, size_t bufferSize); 
+    int receiveData(char* buffer, size_t bufferSize); 
 
     /**
      * @brief: Send data to a socket
-     * @param[in] fd: FileDescriptor of the socket to send data to
      * @param[in] buffer: Data buffer to send
      * @param[in] sendLength: Length of the data to be sent
      * @return: Status code
      */
-    int sendData(int fd, const char* buffer, size_t sendLength); 
-        
-    int d_port; 
-    int d_listenerfd; 
+    int sendData(const char* buffer, size_t sendLength); 
+
+private:
+    int d_fd; 
+
 };
 }
 #endif

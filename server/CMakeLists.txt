@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.0)
 project (battle_tank_multiplayer_server)
 
+set(CMAKE_CXX_STANDARD 11)
+
 include_directories(src/)
 file(GLOB SOURCES src/*.cpp)
 

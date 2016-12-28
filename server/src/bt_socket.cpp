@@ -25,7 +25,9 @@ void *get_in_addr(struct sockaddr *sa)
 
 namespace bt {
 
-Socket::Socket(int port) : d_port(port) 
+// --- ListenSocket ---
+//
+ListenSocket::ListenSocket(int port) : d_port(port) 
 {
     struct addrinfo hints, *ai, *p;
     memset(&hints, 0, sizeof hints);
@@ -36,7 +38,6 @@ Socket::Socket(int port) : d_port(port)
 
     int rv;
     if ((rv = getaddrinfo(NULL, std::to_string(d_port).c_str(), &hints, &ai)) != 0) {
-        //fprintf(stderr, "selectserver: %s\n", gai_strerror(rv));
         std::cerr << "Select server: " << gai_strerror(rv) << std::endl; 
         exit(1);
     }
@@ -74,7 +75,7 @@ Socket::Socket(int port) : d_port(port)
     }
 } 
 
-int Socket::receiveNewConnection() 
+int ListenSocket::receiveNewConnection() 
 {
     fd_set read_fds; 
     FD_ZERO(&read_fds); // clear readset
@@ -106,37 +107,38 @@ int Socket::receiveNewConnection()
                     get_in_addr((struct sockaddr*)&remoteaddr),
                     remoteIP, INET6_ADDRSTRLEN) << 
                     " on socket " << newfd << std::endl; 
-            //printf("selectserver: new connection from %s on "
-                //"socket %d\n",
-                //,
-                //newfd);
         }
     }
     return newfd; 
 }
 
-int Socket::receiveData(int fd, char* buffer, size_t bufferSize) 
+
+// --- ConnectSocket ---
+
+ConnectSocket::ConnectSocket(int fd) : d_fd(fd) {}
+
+int ConnectSocket::receiveData(char* buffer, size_t bufferSize) 
 {
     fd_set read_fds; 
     FD_ZERO(&read_fds); // clear readset
-    FD_SET(fd, &read_fds); 
+    FD_SET(d_fd, &read_fds); 
         
-    if (select(fd + 1, &read_fds, NULL, NULL, NULL) == -1) {
+    if (select(d_fd + 1, &read_fds, NULL, NULL, NULL) == -1) {
         perror("select"); 
         exit(4); 
     }
 
     int nbytes = 0; 
-    if (FD_ISSET(fd, &read_fds)) {
-        if ((nbytes = recv(fd, buffer, bufferSize, 0)) <= 0) {
+    if (FD_ISSET(d_fd, &read_fds)) {
+        if ((nbytes = recv(d_fd, buffer, bufferSize, 0)) <= 0) {
             // if no bytes received
             if (nbytes == 0) {
-                std::cout << "Socket " << fd << " hung up" << std::endl; 
+                std::cout << "Socket " << d_fd << " hung up" << std::endl; 
             } else {
                 perror("recv"); 
             }
             // close socket
-            close(fd); 
+            close(d_fd); 
         } 
     }
 
@@ -144,13 +146,13 @@ int Socket::receiveData(int fd, char* buffer, size_t bufferSize)
 }
 
 
-int Socket::sendData(int fd, const char* buffer, size_t sendLength)
+int ConnectSocket::sendData(const char* buffer, size_t sendLength)
 {
     // do nothing if send length is invalid
     if (sendLength <= 0) return sendLength; 
 
     int nbytesSent = 0; 
-    if ((nbytesSent = send(fd, buffer, sendLength, 0)) == -1) {
+    if ((nbytesSent = send(d_fd, buffer, sendLength, 0)) == -1) {
         perror("send");  
     }
     
