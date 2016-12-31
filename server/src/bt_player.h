@@ -9,7 +9,7 @@ namespace bt {
 
 class Player {
 public: 
-    enum ComStatus {
+    enum OpStatus {
         SUCCESS,
         FAILURE
     }; 

@@ -22,7 +22,12 @@ public:
     /**
      * @brief: Start Game
      */
-    //void startGame(); 
+    void startGame(); 
+
+    /**
+     * @brief: play Level
+     */
+    void runLevel(int level); 
 
 private:
     // cycle through the player sockets and receive data

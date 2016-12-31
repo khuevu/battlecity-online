@@ -26,4 +26,17 @@ void Server::waitForPlayersToJoin() {
     std::cout << "Two player joined" << std::endl;
 }
 
+void Server::startGame() {
+    // send level data to client
+    // run level
+}
+
+void Server::runLevel(int level) {
+    // initialize level container
+    // start game loop
+    //  receive Player msg
+    //  update container
+    //  send Player msg
+}
+
 }
