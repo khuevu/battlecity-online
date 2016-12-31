@@ -27,7 +27,7 @@ public:
     /**
      * @brief: play Level
      */
-    void runLevel(int level); 
+    void runLevel(int levelNumber); 
 
 private:
     // cycle through the player sockets and receive data

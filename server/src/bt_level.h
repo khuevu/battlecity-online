@@ -5,6 +5,7 @@
 
 #include <bt_player.h>
 #include <bt_process.h>
+#include <bt_map.h>
 
 namespace bt {
 
@@ -21,6 +22,7 @@ public:
     // enemy tank list
     // player tank list
     // map 
+    Map d_map; 
 }; 
 }
 #endif

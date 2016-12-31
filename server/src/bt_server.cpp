@@ -8,7 +8,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+
 #include <bt_server.h>
+#include <bt_level.h>
 
 namespace bt {
 
@@ -31,8 +33,9 @@ void Server::startGame() {
     // run level
 }
 
-void Server::runLevel(int level) {
+void Server::runLevel(int levelNumber) {
     // initialize level container
+    Level level(d_players); 
     // start game loop
     //  receive Player msg
     //  update container
