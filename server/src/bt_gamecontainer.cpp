@@ -17,12 +17,14 @@ GameContainer::GameContainer(int levelNumber, std::vector<Player>& players) :
 bool GameContainer::loop() {
     // first send the map to all player
     if (d_state == NEW) {
+        std::cout << "Start level " << d_id << ". Sending map data to clients" << std::endl;
         sendMap();   
         d_state = WAITING; // wait for player to be ready before starting the game
         return true; 
     }
     // once all player ack starts running the game
     if (d_state == READY) {
+        std::cout << "Game is ready. Send notificaton to clients" << std::endl;
         // send notification of ready game to players
         send(MsgTypePlayerReady, NULL, 0);         
         d_state = RUNNING; 

@@ -29,14 +29,17 @@ void Server::waitForPlayersToJoin() {
 }
 
 void Server::startGame() {
-    // send level data to client
     // run level
+    runLevel(1); 
 }
 
 void Server::runLevel(int levelNumber) {
     // initialize level container
     GameContainer container(levelNumber, d_players); 
     // start game loop
+    while (container.loop()) {
+
+    }
     //  receive Player msg
     //  update container
     //  send Player msg
