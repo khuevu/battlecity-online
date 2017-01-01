@@ -10,7 +10,7 @@
 #include <netdb.h>
 
 #include <bt_server.h>
-#include <bt_level.h>
+#include <bt_gamecontainer.h>
 
 namespace bt {
 
@@ -35,7 +35,7 @@ void Server::startGame() {
 
 void Server::runLevel(int levelNumber) {
     // initialize level container
-    Level level(d_players); 
+    GameContainer container(levelNumber, d_players); 
     // start game loop
     //  receive Player msg
     //  update container

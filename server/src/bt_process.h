@@ -3,7 +3,7 @@
 
 namespace bt {
 
-class Level; 
+class GameContainer; 
 
 /**
  * @brief: Process message data from Players
@@ -15,16 +15,16 @@ public:
     /**
      * @brief: Process Constructor which takes reference to Player 
      */
-    Process(Level& level); 
+    Process(GameContainer& level); 
 
     /**
      * @brief: Process update which is invoked for every frame
      */
-    void update(); 
+    bool loop(); 
 
 private: 
 
-    Level& d_level;
+    GameContainer& d_container;
 
     void process(int playerId, unsigned char msgId, const char* msg); 
 

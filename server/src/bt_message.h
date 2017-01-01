@@ -1,12 +1,21 @@
 #ifndef INCLUDED_BT_MESSAGE
 #define INCLUDED_BT_MESSAGE
+
+#include <bt_map.h>
+
 namespace bt {
 // server message
 enum MessageType {
-    TankMove,
-    TankFire, 
-    TankExplode,
-    TankStateInfo
+    MsgTypeMapData,
+    MsgTypePlayerReady,
+    MsgTypeTankMove,
+    MsgTypeTankFire, 
+    MsgTypeTankExplode,
+    MsgTypeTankStateInfo
+};
+
+struct MsgMapData {
+    char map[Map::SIZE][Map::SIZE]; 
 };
 
 // message data
