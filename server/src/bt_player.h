@@ -16,7 +16,7 @@ public:
     /**
      * @brief: The size of the buffer that allocated per player
      */
-    static const size_t BUFFER_SIZE = 512; 
+    static const size_t BUFFER_SIZE = 1024; 
 
     /**
      * @brief: Construct player that is connecting at the specified socket file

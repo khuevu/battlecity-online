@@ -28,6 +28,18 @@ void Server::waitForPlayersToJoin() {
     std::cout << "Two player joined" << std::endl;
 }
 
+void Server::receiveDataFromPlayers() {
+    for (Player player : d_players) {
+        player.receiveMsg(); 
+    }
+}
+
+void Server::sendDataToPlayers() {
+    for (Player player : d_players) {
+        player.sendMsg(); 
+    }
+}
+
 void Server::startGame() {
     // run level
     runLevel(1); 
@@ -37,12 +49,17 @@ void Server::runLevel(int levelNumber) {
     // initialize level container
     GameContainer container(levelNumber, d_players); 
     // start game loop
-    while (container.loop()) {
+    while (true) {
+        // read data from client sockets and store in player buffer to be
+        // processed by the game logic
+        receiveDataFromPlayers(); 
 
+        container.loop(); 
+
+        // flush the data to be sent to players in the buffer to the client
+        // sockets
+        sendDataToPlayers();
     }
-    //  receive Player msg
-    //  update container
-    //  send Player msg
 }
 
 }

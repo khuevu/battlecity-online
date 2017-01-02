@@ -31,8 +31,6 @@ public:
     void runLevel(int levelNumber); 
 
 private:
-    // cycle through the player sockets and receive data
-    //void receiveDataFromPlayers(); 
 
     // socket to handle send and recv data
     ListenSocket d_listenSocket; 
@@ -42,6 +40,13 @@ private:
 
     // connected players
     std::vector<Player> d_players; 
+
+    // cycle through the sockets, receive data from client and save to player
+    // buffer
+    void receiveDataFromPlayers(); 
+
+    // send data in the player buffer to client
+    void sendDataToPlayers(); 
 };
 
 }

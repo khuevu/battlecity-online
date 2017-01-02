@@ -5,10 +5,13 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <cassert>
+
 #include <bt_socket.h>
 
 namespace {
@@ -122,8 +125,13 @@ int ConnectSocket::receiveData(char* buffer, size_t bufferSize)
     fd_set read_fds; 
     FD_ZERO(&read_fds); // clear readset
     FD_SET(d_fd, &read_fds); 
+
+    // set the timeval to 0 to effect a poll
+    struct timeval tv; 
+    tv.tv_sec = 0; 
+    tv.tv_usec = 0; 
         
-    if (select(d_fd + 1, &read_fds, NULL, NULL, NULL) == -1) {
+    if (select(d_fd + 1, &read_fds, NULL, NULL, &tv) == -1) {
         perror("select"); 
         exit(4); 
     }

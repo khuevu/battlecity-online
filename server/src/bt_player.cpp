@@ -35,8 +35,9 @@ int Player::sendMsg() {
 
 int Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength) {
     // account for header
-    if (msgLength + 2>= BUFFER_SIZE - d_wbUsed) {
+    if (msgLength + 2 >= BUFFER_SIZE - d_wbUsed) {
         std::cerr << "No buffer available for Player at socket " << d_socketFd << std::endl;
+        std::cerr << "Required: " << msgLength << ". But only available: " << (BUFFER_SIZE - d_wbUsed) << std::endl;
         //We can try sending the existing buffer instead of failing here
         return FAILURE; 
     }
