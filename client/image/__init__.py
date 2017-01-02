@@ -1,3 +1,4 @@
+import pygame
 import os
 
 _image_dir = os.path.dirname(os.path.realpath(__file__))
