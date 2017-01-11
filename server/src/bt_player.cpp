@@ -22,11 +22,15 @@ int Player::receiveMsg() {
 
 int Player::sendMsg() {
     // send message from buffer
+    //std::cout << "Data " << d_wbUsed << std::endl;
+    if (d_wbUsed == 0) return SUCCESS; 
+
     int nbytes = d_socket.sendData(d_writeBuffer, d_wbUsed); 
     if (nbytes < 0) {
         std::cerr << "Error sending message to Player at socket " << d_socketFd << std::endl; 
         return FAILURE; 
-    }
+    }     
+    
     // reset buffer
     d_wbUsed = 0; 
     memset(d_writeBuffer, 0, BUFFER_SIZE); 
@@ -37,7 +41,7 @@ int Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLengt
     // account for header
     if (msgLength + 2 >= BUFFER_SIZE - d_wbUsed) {
         std::cerr << "No buffer available for Player at socket " << d_socketFd << std::endl;
-        std::cerr << "Required: " << msgLength << ". But only available: " << (BUFFER_SIZE - d_wbUsed) << std::endl;
+        //std::cerr << "Required: " << msgLength << ". But only available: " << (BUFFER_SIZE - d_wbUsed) << std::endl;
         //We can try sending the existing buffer instead of failing here
         return FAILURE; 
     }
@@ -48,6 +52,7 @@ int Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLengt
     // copy msg to buffer
     memcpy(&availableWriteBuffer[2], msg, msgLength); 
     d_wbUsed += msgLength + 2; 
+
     return SUCCESS; 
 }
 

@@ -29,13 +29,13 @@ void Server::waitForPlayersToJoin() {
 }
 
 void Server::receiveDataFromPlayers() {
-    for (Player player : d_players) {
+    for (Player& player : d_players) {
         player.receiveMsg(); 
     }
 }
 
 void Server::sendDataToPlayers() {
-    for (Player player : d_players) {
+    for (Player& player : d_players) {
         player.sendMsg(); 
     }
 }
