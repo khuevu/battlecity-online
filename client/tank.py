@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
     # start game
     game = Game(server_addr=("localhost", 9034))
+    print "Start polling data from server"
     while True:
         game.start()
 

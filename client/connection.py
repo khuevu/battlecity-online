@@ -6,7 +6,7 @@ import os
 
 class Connection(object): 
 
-    BUFSIZE = 1024
+    BUFSIZE = 1024 
 
     def __init__(self, host, port): 
         self.host = host
@@ -24,8 +24,10 @@ class Connection(object):
     def recv(self): 
         readables, _, _ = select.select([self.sock], [], [], 0) 
         if len(readables) > 0: 
-            data = self.sock.recv(self.BUFSIZE)
-            print "Receive ", data
+            data = readables[0].recv(self.BUFSIZE)
+            if len(data) == 0:
+                # if select return socket as ready but the data length is 0, probably the other end has hung up
+                raise socket.error("Disconnected")
 
     def send(self): 
         pass
