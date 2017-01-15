@@ -1,4 +1,4 @@
-from model.screen import DrawableSequence
+from model.screen import OrderedSequence
 import unittest
 
 
@@ -9,11 +9,13 @@ class MockDrawable(object):
         self.name = name
 
 
-class TestDrawableSequence(unittest.TestCase): 
+class TestOrderedSequence(unittest.TestCase): 
+    """ Test whether a sequence of drawable objects can be 
+    iterated in the correct order of their z coordinates. """
 
 
     def setUp(self): 
-        self.drawables = DrawableSequence()
+        self.drawables = OrderedSequence(key=lambda d: d.Z)
         self.seq = [MockDrawable(z=0, name=1), MockDrawable(z=0, name=2),
                 MockDrawable(z=9, name=5), MockDrawable(z=5, name=4)]
         for mock in self.seq: 
@@ -32,6 +34,6 @@ class TestDrawableSequence(unittest.TestCase):
         actual_order = []
         for i, node in enumerate(self.drawables):
             #print i, node.drawable.name
-            actual_order.append(node.drawable.name)
+            actual_order.append(node.elem.name)
 
         self.assertEqual(expected_order, actual_order)
