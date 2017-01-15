@@ -88,9 +88,10 @@ class GameScreen(object):
 
     def __init__(self, screen): 
         self.screen = screen
-        self.drawableSeq = OrderedSequence()
+        self.drawableSeq = OrderedSequence(key=lambda d: d.Z)
 
     def draw(self): 
+        """ Paint the GameScreen. """
         # Clear old screen
         self.screen.fill([0, 0, 0])
         # Draw active objects by iterating through the order of 
@@ -104,6 +105,5 @@ class GameScreen(object):
         pygame.display.flip()
 
     def add(self, drawable): 
+        """ Add Element to the screen. """
         self.drawableSeq.insert(drawable)
-
-

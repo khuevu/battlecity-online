@@ -65,3 +65,11 @@ class Text(Drawable):
         self.rect.size = size
 
 
+#class AnimatedDrawable(Drawable): 
+    
+    #def __init__(self, rect, image): 
+        #Drawable.__init__(self, rect, image)
+
+    #def loop(time_passed=None):  
+        #pass
+

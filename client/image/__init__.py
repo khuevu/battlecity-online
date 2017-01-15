@@ -6,9 +6,9 @@ _image_dir = os.path.dirname(os.path.realpath(__file__))
 # All sprites
 sprites = pygame.transform.scale(pygame.image.load(_image_dir + "/sprites.gif"), [192, 224])
 
-game_icon = sprites.subsurface(0, 0, 13*2, 13*2)
+game_icon = sprites.subsurface(0, 0, 26, 26)
 
-tank_player_img = sprites.subsurface(0, 0, 26, 26)
+tank_player = sprites.subsurface(0, 0, 26, 26)
 
 tank_enemy_imgs = [
     sprites.subsurface(32*2, 0, 13*2, 15*2),

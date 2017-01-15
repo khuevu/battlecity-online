@@ -1,5 +1,8 @@
 import pygame
 import os
+
+
+pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=1024)
 _sound_dir = os.path.dirname(os.path.realpath(__file__))
 
 sound_gamestart = pygame.mixer.Sound(_sound_dir + '/gamestart.ogg')
