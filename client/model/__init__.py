@@ -1,4 +1,5 @@
 import pygame
+import font
 
 
 class Drawable(object): 
@@ -14,29 +15,6 @@ class Drawable(object):
     Z = 0 
     S_ACTIVE, S_DESTROYED = range(2)
 
-    def __init__(self, topleft, size, image):
-        """ Initialize the Drawable rectangle area
-
-        Arguments:
-        topleft -- (x,y) coordinate of the object
-        size -- (width, height) of the object
-        image -- the image to be rendered in the rectangle area
-        """
-        self.__init__(topleft[0], topleft[1],
-                size[0], size[1], image)
-
-    def __init__(self, x, y, width, height, image): 
-        """ Initialize the Drawable rectangle area
-
-        Arguments:
-        x -- the x coordinate of the object
-        y -- the y coordinate of the object
-        width -- the width of the object
-        height -- the height of the object
-        image -- the image to be rendered in the rectangle area
-        """
-        self.__init__(pygame.Rect(x, y, width, height), image)
-
     def __init__(self, rect, image): 
         """ Initialize the Drawable rectangle area
 
@@ -46,18 +24,44 @@ class Drawable(object):
         """
         self.rect = rect
         self.image = image
-        self.state = S_ACTIVE
+        self.state = self.S_ACTIVE
         
     def draw(self, screen): 
         """ Draw object onto the pygame screen. """
-        if self.state == S_ACTIVE:
+        if self.state == self.S_ACTIVE:
             screen.blit(self.image, self.rect)
 
     def destroy(self): 
-        self.state = S_DESTROYED
+        self.state = self.S_DESTROYED
         
 
-class GameScreen(object): 
-    """ Define the type of game's screens """
+class Text(Drawable):
+    """ Text Object that can be rendered on the Screen. """
+
+    Z = 0
+
+    def __init__(self, topleft, text="", 
+            font_size=16, color=pygame.Color('white')):
+        """ Construct a Text Image at the specified topleft position. """
+        self.fontSize = font_size
+        self.text = text
+        self.color = color
+        img, size = self._render_as_image(text)
+        Drawable.__init__(self, pygame.Rect(topleft, size), img)
+
+    def _render_as_image(self, text): 
+        f = font.with_size(self.fontSize)
+        # Determine size
+        size = f.size(text)
+
+        image = f.render(text, False, self.color)
+        return image, size
+
+    def set_content(self, text): 
+        """ Update the content of the Text Image. """
+        img, size = self._render_as_image(text)
+        # Modify the Drawable attributes based on text attributes
+        self.image = img
+        self.rect.size = size
 
 

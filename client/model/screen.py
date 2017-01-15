@@ -1,12 +1,9 @@
 import pygame 
-
-
+from model import Drawable
 
 
 class OrderedSequence(object): 
     """ Container contains the children of a Screen.
-
-    The children must be of type elem.
 
     The container ensure the elements are sorted in the order of its type 
     Z coordinate. 
@@ -45,41 +42,39 @@ class OrderedSequence(object):
 
     def insert(self, elem): 
         """ Insert a elem element in the order based on its key. """
-
-        newNode = self.Node(elem, self.key(elem))
+        new_node = self.Node(elem, self.key(elem))
         if not self.list: 
-            self.list = newNode
+            self.list = new_node
         else: 
             prev = None
             cur = self.list
             # find position to insert the new node
-            while cur and cur.key <= newNode.key: 
+            while cur and cur.key <= new_node.key: 
                 prev = cur
                 cur = cur.next
             
             if not prev: 
                 # insert at the begining of the list
-                newNode.next = self.list
-                self.list.prev = newNode
-                self.list = newNode
+                new_node.next = self.list
+                self.list.prev = new_node
+                self.list = new_node
 
             elif not cur: 
                 # insert at the end of the list
-                prev.next = newNode
-                newNode.prev = prev
+                prev.next = new_node
+                new_node.prev = prev
 
             else: 
                 # insert in between
-                prev.next = newNode
-                newNode.prev = prev
-                newNode.next = cur
-                cur.prev = newNode
+                prev.next = new_node
+                new_node.prev = prev
+                new_node.next = cur
+                cur.prev = new_node
 
-        return newNode
+        return new_node
                 
     def remove(self, node): 
         """ Remove the node from the container. """
-
         p = node.prev
         n = node.next
         if p: 
@@ -102,13 +97,13 @@ class GameScreen(object):
         # the OrderedSequence container so that the lower objects
         # are drawn first. 
         for node in self.drawableSeq: 
-            if node.drawble.state == Drawable.S_ACTIVE: 
-                node.drawble.draw(self.screen)
+            if node.elem.state == Drawable.S_ACTIVE: 
+                node.elem.draw(self.screen)
             else: 
                 self.drawableSeq.remove(node)
         pygame.display.flip()
 
     def add(self, drawable): 
-        self.drawableSeq.insert(drawble)
+        self.drawableSeq.insert(drawable)
 
 
