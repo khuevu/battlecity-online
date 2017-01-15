@@ -20,14 +20,14 @@ if __name__ == "__main__":
     pygame.init()
     pygame.display.set_caption("Multiplayer Battle City Game")
 
-    # import image resources
+    # initialize image resources
     import image
     pygame.display.set_icon(image.game_icon)
 
-    # import font resource
+    # initialize font resource
     import font
     
-    # import sound resources
+    # initialize sound resources
     pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=1024)
     import sound
 
