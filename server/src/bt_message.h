@@ -6,6 +6,7 @@
 namespace bt {
 // server message
 enum MessageType {
+    MsgTypeGameReady,
     MsgTypeMapData,
     MsgTypePlayerReady,
     MsgTypeTankMove,

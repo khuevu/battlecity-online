@@ -11,6 +11,7 @@
 
 #include <bt_server.h>
 #include <bt_gamecontainer.h>
+#include <bt_message.h>
 
 namespace bt {
 
@@ -26,6 +27,13 @@ void Server::waitForPlayersToJoin() {
         }
     }
     std::cout << "Two player joined" << std::endl;
+    // send update to players
+    for (Player& player : d_players) {
+        player.prepareMsgSend(MsgTypeGameReady, NULL, 0); 
+    }
+
+    // flush
+    sendDataToPlayers(); 
 }
 
 void Server::receiveDataFromPlayers() {

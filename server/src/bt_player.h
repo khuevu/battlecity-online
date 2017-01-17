@@ -47,6 +47,11 @@ public:
     int prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength); 
 
     /**
+     * @brief: Send message immediately to the player without buffering
+     */
+    //int sendMsg(unsigned char msgId, const char* msg, size_t msgLength); 
+
+    /**
      * @brief: Get message from the buffer
      */
     int readNextMsgReceived(unsigned char* msgId, char* msg); 

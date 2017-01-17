@@ -1,20 +1,21 @@
 import pygame
 import os
-from connection import Connection
 import stage
-from model.screen import GameScreen
 
 
 class Game(object): 
 
-    def __init__(self, scrn, server_addr): 
-        self.gameScreen = GameScreen(scrn)
-        #self.connection = Connection(server_addr[0], server_addr[1])
+    def __init__(self, display, server_addr): 
+        self.display = display
+        self.serverAddr = server_addr
 
     def start(self): 
-        #self.connection.recv()
-        cur_stage = stage.StartStage(self.gameScreen)
-        cur_stage.show()
+        cur_stage = stage.StartStage(self)
+        while cur_stage: 
+            cur_stage.show() # execute the stage
+            cur_stage = cur_stage.next_stage()
+
+        print "Game completed"
 
 
 if __name__ == "__main__": 
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     os.environ['SDL_VIDEO_WINDOW_POS'] = 'center'
     pygame.init()
     pygame.display.set_caption("Multiplayer Battle City Game")
-    screen = pygame.display.set_mode((480, 416))
+    display = pygame.display.set_mode((480, 416))
 
     # import image resources
     import image
@@ -35,8 +36,6 @@ if __name__ == "__main__":
     import sound
 
     # start game
-    game = Game(scrn=screen, server_addr=("localhost", 9034))
-    print "Start polling data from server"
-    while True:
-        game.start()
+    game = Game(display=display, server_addr=("localhost", 9034))
+    game.start()
 
