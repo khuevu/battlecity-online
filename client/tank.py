@@ -1,6 +1,7 @@
 import pygame
 import os
 import stage
+from connection import Connection 
 
 
 class Game(object): 
@@ -8,9 +9,10 @@ class Game(object):
     def __init__(self, display, server_addr): 
         self.display = display
         self.serverAddr = server_addr
+        self.conn = Connection(server_addr[0], server_addr[1])
 
     def start(self): 
-        cur_stage = stage.StartStage(self)
+        cur_stage = stage.StartStage(self.display, self.conn)
         while cur_stage: 
             cur_stage.show() # execute the stage
             cur_stage = cur_stage.next_stage()

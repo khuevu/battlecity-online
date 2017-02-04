@@ -5,8 +5,10 @@
 #include <string>
 
 #include <bt_player.h>
+#include <bt_tank.h>
 #include <bt_process.h>
 #include <bt_map.h>
+#include <bt_util.h>
 
 namespace bt {
 
@@ -27,12 +29,7 @@ public:
     // run GameContainer 
     bool loop(); 
 
-    /**
-     * @brief: Send messages to players
-     * @param[in]: except The id of player except whom the messages will be
-     */
-    void send(unsigned char msgId, const char* msg, size_t msgLength, int except=-1); 
-
+    
 private: 
     // GameContainer id
     int d_id; 
@@ -42,6 +39,7 @@ private:
     // explosion list?
     // enemy tank list
     // player tank list
+    std::vector<PlayerTank> d_playerTanks;
     // map 
     Map d_map; 
 
@@ -56,6 +54,28 @@ private:
         OVER
     }; 
     State d_state; 
+
+    // utility timer
+    Timer d_timer;
+    unsigned long d_gameStartTime; 
+
+    /**
+     * @brief: Send messages to players. Messages are put in the buffer queue
+     * to be flushed to the client
+     * @param[in]: except The id of player except whom the messages will be
+     */
+    void send(unsigned char msgId, const char* msg, size_t msgLength, int except=-1); 
+
+    /**
+     * @brief: Read received messages from the players
+     */
+    void readMsgsFromPlayers(); 
+
+    /**
+     * @brief: Process message received from either of the player
+     */
+    void processMsg(int playerId, unsigned char msgId, const char* msg); 
+
     // load map from file
     void loadMap(); 
     // send map to players

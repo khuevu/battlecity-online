@@ -38,20 +38,23 @@ int Player::sendMsg() {
 }
 
 int Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength) {
-    // account for header
-    if (msgLength + 2 >= BUFFER_SIZE - d_wbUsed) {
+    // account for header size = msg_length + msg_id
+    size_t headerSize = sizeof(unsigned int) + sizeof(unsigned char); 
+    if (msgLength + headerSize >= BUFFER_SIZE - d_wbUsed) {
         std::cerr << "No buffer available for Player at socket " << d_socketFd << std::endl;
-        //std::cerr << "Required: " << msgLength << ". But only available: " << (BUFFER_SIZE - d_wbUsed) << std::endl;
         //We can try sending the existing buffer instead of failing here
         return FAILURE; 
     }
     
     char* availableWriteBuffer = d_writeBuffer + d_wbUsed; 
-    availableWriteBuffer[0] = (unsigned char) msgLength; 
-    availableWriteBuffer[1] = msgId; 
+    //availableWriteBuffer[0] = (unsigned char) (msgLength + 1); 
+    unsigned int sz = msgLength; 
+    memcpy(&availableWriteBuffer[0], &sz, sizeof(sz));
+    availableWriteBuffer[sizeof(sz)] = msgId; 
     // copy msg to buffer
-    memcpy(&availableWriteBuffer[2], msg, msgLength); 
-    d_wbUsed += msgLength + 2; 
+    memcpy(&availableWriteBuffer[headerSize], msg, msgLength); 
+    //d_wbUsed += msgLength + 2; 
+    d_wbUsed += headerSize + msgLength; 
 
     return SUCCESS; 
 }
@@ -63,12 +66,14 @@ int Player::readNextMsgReceived(unsigned char* msgId, char* msg) {
         return FAILURE; 
     }
 
-    size_t length = d_readBuffer[0]; 
-    *msgId = d_readBuffer[1]; 
+    //size_t length = d_readBuffer[0]; 
+    unsigned int length = *((unsigned int*) d_readBuffer); 
+    *msgId = d_readBuffer[sizeof(length)]; 
     // copy buffer to msg
-    memcpy(msg, &d_readBuffer[2], length); 
+    size_t headerSize = sizeof(length) + sizeof(msgId);
+    memcpy(msg, &d_readBuffer[headerSize], length); 
     // shuffer buffer
-    size_t packetLength = length + 2; 
+    size_t packetLength = headerSize + length; 
     if (d_rbUsed == packetLength) {
         // clear the buffer if all the packets have been read
         memset(&d_readBuffer, 0, BUFFER_SIZE); 

@@ -86,20 +86,20 @@ class OrderedSequence(object):
 class GameScreen(object): 
     """ Define the type of game's screens """
 
-    def __init__(self, screen): 
-        self.screen = screen
+    def __init__(self, display): 
+        self.display = display 
         self.drawableSeq = OrderedSequence(key=lambda d: d.Z)
 
     def draw(self): 
         """ Paint the GameScreen. """
         # Clear old screen
-        self.screen.fill([0, 0, 0])
+        self.display.fill([0, 0, 0])
         # Draw active objects by iterating through the order of 
         # the OrderedSequence container so that the lower objects
         # are drawn first. 
         for node in self.drawableSeq: 
             if node.elem.state == Drawable.S_ACTIVE: 
-                node.elem.draw(self.screen)
+                node.elem.draw(self.display)
             else: 
                 self.drawableSeq.remove(node)
         pygame.display.flip()

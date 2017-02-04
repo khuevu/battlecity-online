@@ -26,7 +26,7 @@ void Server::waitForPlayersToJoin() {
             d_players.emplace_back(newfd); 
         }
     }
-    std::cout << "Two player joined" << std::endl;
+    std::cout << "Two player joined. Notify the player that the game is ready" << std::endl;
     // send update to players
     for (Player& player : d_players) {
         player.prepareMsgSend(MsgTypeGameReady, NULL, 0); 
