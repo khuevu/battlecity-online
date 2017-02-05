@@ -2,17 +2,17 @@ import pygame
 import image
 from model import Drawable, Text
 from model.screen import GameScreen
-from connection import Server
+from message import *
 
 
 class Stage(object): 
 
-    def __init__(self, display, connection): 
-        self.scrn = GameScreen(display) 
-        self.server = Server(connection)
+    def __init__(self, game): 
+        self.game = game
+        self.scrn = GameScreen(game.display) 
+        self.server = game.server
         self.running = True
         self.clock = pygame.time.Clock()
-        self.nextStage = None
 
     def loop(self, time_passed): 
         pass
@@ -24,14 +24,14 @@ class Stage(object):
             self.loop(time_passed)
     
     def next_stage(self): 
-        return self.nextStage 
+        pass
 
             
 class StartStage(Stage): 
     """ Welcome stage """
 
-    def __init__(self, display, connection): 
-        Stage.__init__(self, display, connection)
+    def __init__(self, game): 
+        Stage.__init__(self, game)
         # Display welcome text
         battleText = Text((80, 100), text="Battle City", font_size=30)
         self.scrn.add(battleText)
@@ -51,15 +51,15 @@ class StartStage(Stage):
 
     def next_stage(self): 
         print "Start connecting to server"
-        return JoiningStage(self.scrn.display, self.server.connection)
+        return JoiningStage(self.game)
 
 
 class JoiningStage(Stage): 
 
     STATE_WAIT_PLAYER, STATE_GET_CONF = range(2)
 
-    def __init__(self, display, connection): 
-        Stage.__init__(self, display, connection)
+    def __init__(self, game): 
+        Stage.__init__(self, game)
         self.notification = Text((80, 200), text="Waiting for other player to join", font_size=16)
         self.scrn.add(self.notification)
         self.state = self.STATE_WAIT_PLAYER
@@ -75,7 +75,7 @@ class JoiningStage(Stage):
 
     def next_stage(self):
         print "Starting new level"
-        return BattleStage(self.scrn.display, self.server.connection)
+        return BattleStage(self.game)
 
 
 class BattleStage(Stage): 
@@ -83,19 +83,19 @@ class BattleStage(Stage):
     STATE_NEW, STATE_WAIT_MAP, STATE_WAIT_START, \
     STATE_READY, STATE_RUNNING, STATE_WIN, STATE_OVER = range(7)
 
-    def __init__(self, display, connection, level=1): 
-        Stage.__init__(self, display, connection)
-        self.state = STATE_NEW
+    def __init__(self, game, level=1): 
+        Stage.__init__(self, game)
+        self.state = self.STATE_NEW
         self.level = level
 
     def loop(self, time_passed): 
-        if self.state == STATE_NEW: 
+        if self.state == self.STATE_NEW: 
             # Request for game start for map 
             print "Send request to server to start a new level"
-            self.server.send_message(MsgRequestLevelStart(level))
-            self.state = STATE_WAIT_MAP
+            self.server.send_message(MsgRequestLevelStart(self.level))
+            self.state = self.STATE_WAIT_MAP
             
-        elif self.state == STATE_WAIT_MAP:
+        elif self.state == self.STATE_WAIT_MAP:
             msg = self.server.get_message()
             if msg:
                 m_t, m_d = msg
@@ -106,9 +106,9 @@ class BattleStage(Stage):
 
                 # Send acknowledgement to server
                 self.server.send_message(MsgLevelReady())
-                self.state = STATE_WAIT_START
+                self.state = self.STATE_WAIT_START
 
-        elif self.state == STATE_WAIT_START:
+        elif self.state == self.STATE_WAIT_START:
             msg = self.server.get_message()
             if msg: 
                 m_t, m_d = msg

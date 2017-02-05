@@ -11,6 +11,7 @@ class Player {
 public: 
     enum OpStatus {
         SUCCESS,
+        NODATA,
         FAILURE
     }; 
     /**
@@ -34,22 +35,22 @@ public:
     /**
      * @brief: Receive message from the client player and save to buffer
      */
-    int receiveMsg(); 
+    OpStatus receiveMsg(); 
 
     /**
      * @brief: Send message to the player from the buffer
      */
-    int sendMsg(); 
+    OpStatus sendMsg(); 
 
     /**
      * @brief: Add message to the buffer queue to be sent to the client player
      */
-    int prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength); 
+    OpStatus prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength); 
 
     /**
      * @brief: Get message from the buffer
      */
-    int readNextMsgReceived(unsigned char* msgId, char* msg); 
+    OpStatus readNextMsgReceived(unsigned char* msgId, char* msg); 
 
 private: 
     // storage buffer

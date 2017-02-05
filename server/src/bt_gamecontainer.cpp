@@ -82,14 +82,18 @@ void GameContainer::readMsgsFromPlayers() {
         unsigned char msgId; 
         // use a 1024 buffer at most
         char msg[1024]; 
-        player.readNextMsgReceived(&msgId, msg); 
 
-        processMsg(player.id(), msgId, msg);  
+        Player::OpStatus rc = player.readNextMsgReceived(&msgId, msg); 
+        if (rc == Player::SUCCESS) {
+            processMsg(player.id(), msgId, msg);  
+        }
     }
 }
 
 
 void GameContainer::processMsg(int playerId, unsigned char msgId, const char* msg) {
+    std::cout << "Process msg " << msgId << " from player " << playerId << std::endl; 
+
     if (d_state == WAITING) {
         // when player acknowledge that it has received map data
         if (msgId == MsgTypeLevelReady) {

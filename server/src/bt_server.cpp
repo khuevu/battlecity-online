@@ -49,6 +49,7 @@ void Server::sendDataToPlayers() {
 }
 
 void Server::startGame() {
+    // TODO: wait for request to start level
     // run level
     runLevel(1); 
 }

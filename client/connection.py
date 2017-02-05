@@ -75,7 +75,6 @@ class Server(object):
             new_data = self.connection.recv()
             if new_data:
                 # add new data to buffer
-                #self.buffer.extend(new_data)
                 self.buffer += new_data
                 # extract the message to the pending msg queue
                 self._extract_buffered_messages()
@@ -86,5 +85,6 @@ class Server(object):
             return None
 
     def send_message(self, msg): 
-        data = struct.pack('BBs', len(msg) + 1, msg.MSG_TYPE, msg.serialize()) 
-        self.connection.send(data)
+        raw_msg = msg.serialize()
+        header = struct.pack('IB', len(raw_msg), msg.MSG_TYPE) 
+        self.connection.send(header + raw_msg)

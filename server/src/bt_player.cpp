@@ -8,7 +8,7 @@ Player::Player(int socketFd) :
     d_rbUsed(0), d_wbUsed(0),
     d_socketFd(socketFd), d_socket(d_socketFd) { }
 
-int Player::receiveMsg() {
+Player::OpStatus Player::receiveMsg() {
     // we might want to add checksum
     int nbytes = d_socket.receiveData(d_readBuffer + d_rbUsed, BUFFER_SIZE - d_rbUsed); 
     if (nbytes < 0) {
@@ -20,9 +20,8 @@ int Player::receiveMsg() {
     return SUCCESS; 
 }
 
-int Player::sendMsg() {
+Player::OpStatus Player::sendMsg() {
     // send message from buffer
-    //std::cout << "Data " << d_wbUsed << std::endl;
     if (d_wbUsed == 0) return SUCCESS; 
 
     int nbytes = d_socket.sendData(d_writeBuffer, d_wbUsed); 
@@ -37,7 +36,7 @@ int Player::sendMsg() {
     return SUCCESS; 
 }
 
-int Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength) {
+Player::OpStatus Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength) {
     // account for header size = msg_length + msg_id
     size_t headerSize = sizeof(unsigned int) + sizeof(unsigned char); 
     if (msgLength + headerSize >= BUFFER_SIZE - d_wbUsed) {
@@ -59,18 +58,18 @@ int Player::prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLengt
     return SUCCESS; 
 }
 
-int Player::readNextMsgReceived(unsigned char* msgId, char* msg) {
+Player::OpStatus Player::readNextMsgReceived(unsigned char* msgId, char* msg) {
     // read next msg from buffer
     if (d_rbUsed == 0) {
         // no msg in buffer
-        return FAILURE; 
+        return NODATA; 
     }
 
     //size_t length = d_readBuffer[0]; 
     unsigned int length = *((unsigned int*) d_readBuffer); 
     *msgId = d_readBuffer[sizeof(length)]; 
     // copy buffer to msg
-    size_t headerSize = sizeof(length) + sizeof(msgId);
+    size_t headerSize = sizeof(length) + sizeof(*msgId);
     memcpy(msg, &d_readBuffer[headerSize], length); 
     // shuffer buffer
     size_t packetLength = headerSize + length; 
