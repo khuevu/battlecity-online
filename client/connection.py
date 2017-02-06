@@ -31,7 +31,7 @@ class Connection(object):
             if len(data) == 0:
                 # if select return socket as ready but the data length is 0, probably the other end has hung up
                 raise socket.error("Disconnected")
-
+            print "Connection receive data ", ':'.join(x.encode('hex') for x in data)
             return data
         else:
             return None
@@ -54,7 +54,7 @@ class Server(object):
             # read message length and type
             headerSize = 5
             length, msgType = struct.unpack('IB', self.buffer[i : i + headerSize])
-            print "Conn: received msg type {} of length {}".format(msgType, length) 
+            print "Received new msg of type {} with length {}".format(msgType, length) 
             # check if the complete msg has been received
             if i + headerSize + length <= len(self.buffer): 
                 # read the msg
@@ -62,12 +62,11 @@ class Server(object):
                 i += headerSize + length 
                 self.msgs.append([msgType, msg])
             else: 
-                # shift up the buffer and break
-                if i > 0: 
-                    self.buffer = self.buffer[i:]
                 break
 
-        return self.msgs
+        # shift up the buffer and break
+        if i > 0: 
+            self.buffer = self.buffer[i:]
 
     def get_message(self): 
         if len(self.msgs) == 0: 

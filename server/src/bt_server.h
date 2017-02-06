@@ -47,6 +47,9 @@ private:
 
     // send data in the player buffer to client
     void sendDataToPlayers(); 
+
+    // wait for all players to ready for new level
+    void waitForPlayersReadyForNewLevel();
 };
 
 }

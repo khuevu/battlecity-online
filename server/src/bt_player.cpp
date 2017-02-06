@@ -70,7 +70,9 @@ Player::OpStatus Player::readNextMsgReceived(unsigned char* msgId, char* msg) {
     *msgId = d_readBuffer[sizeof(length)]; 
     // copy buffer to msg
     size_t headerSize = sizeof(length) + sizeof(*msgId);
-    memcpy(msg, &d_readBuffer[headerSize], length); 
+    if (length > 0) {
+        memcpy(msg, &d_readBuffer[headerSize], length); 
+    }
     // shuffer buffer
     size_t packetLength = headerSize + length; 
     if (d_rbUsed == packetLength) {

@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include <set>
 #include <bt_server.h>
 #include <bt_gamecontainer.h>
 #include <bt_message.h>
@@ -31,9 +32,27 @@ void Server::waitForPlayersToJoin() {
     for (Player& player : d_players) {
         player.prepareMsgSend(MsgTypeGameReady, NULL, 0); 
     }
-
     // flush
     sendDataToPlayers(); 
+}
+
+void Server::waitForPlayersReadyForNewLevel() {
+    std::set<int> readys; 
+    while (readys.size() < d_players.size()) {
+        // get the start level request
+        for (Player& player : d_players) {
+
+            player.receiveMsg();  
+            unsigned char msgId; 
+
+            player.readNextMsgReceived(&msgId, NULL); 
+            if (msgId == MsgTypeRequestLevelStart) {
+                std::cout << "Player " << player.id() << " is ready for new level" << std::endl;
+                readys.insert(player.id());
+            }
+        }
+    }
+    std::cout << "Both players are ready for new level" << std::endl; 
 }
 
 void Server::receiveDataFromPlayers() {
@@ -49,9 +68,12 @@ void Server::sendDataToPlayers() {
 }
 
 void Server::startGame() {
-    // TODO: wait for request to start level
-    // run level
-    runLevel(1); 
+    int level(1); 
+    std::cout << "Next level: level " << level << std::endl; 
+    // Wait for request to start level
+    waitForPlayersReadyForNewLevel(); 
+    // run next level
+    runLevel(level); 
 }
 
 void Server::runLevel(int levelNumber) {

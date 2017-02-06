@@ -92,7 +92,7 @@ class BattleStage(Stage):
         if self.state == self.STATE_NEW: 
             # Request for game start for map 
             print "Send request to server to start a new level"
-            self.server.send_message(MsgRequestLevelStart(self.level))
+            self.server.send_message(MsgRequestLevelStart())
             self.state = self.STATE_WAIT_MAP
             
         elif self.state == self.STATE_WAIT_MAP:
