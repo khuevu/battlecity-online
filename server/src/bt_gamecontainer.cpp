@@ -29,6 +29,7 @@ bool GameContainer::loop() {
     }
 
     if (d_state == WAITING) {
+        // new tank constructed when player acked receipt of map 
         if (d_playerTanks.size() == 2) {
             std::cout << "All players has received map data and ready to start level" << std::endl; 
             // when the player are all ready

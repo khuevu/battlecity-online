@@ -45,8 +45,8 @@ void Server::waitForPlayersReadyForNewLevel() {
             player.receiveMsg();  
             unsigned char msgId; 
 
-            player.readNextMsgReceived(&msgId, NULL); 
-            if (msgId == MsgTypeRequestLevelStart) {
+            Player::OpStatus rs = player.readNextMsgReceived(&msgId, NULL); 
+            if (rs == Player::SUCCESS && msgId == MsgTypeRequestLevelStart) {
                 std::cout << "Player " << player.id() << " is ready for new level" << std::endl;
                 readys.insert(player.id());
             }
