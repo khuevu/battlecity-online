@@ -9,7 +9,7 @@ class Drawable(object):
     in which the object of the type is drawn which influence the
     overlays. 
     
-    Its state dictates whether the object is drawed.  
+    Its state dictates whether the object will be drawn.  
     """
 
     Z = 0 

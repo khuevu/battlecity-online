@@ -3,6 +3,12 @@ import image
 from model import Drawable, Text
 from model.screen import GameScreen
 from message import *
+from level import Level
+from model.map import Map
+import time
+
+
+currenttime_millis = lambda: int(round(time.time() * 1000))
 
 
 class Stage(object): 
@@ -11,17 +17,16 @@ class Stage(object):
         self.game = game
         self.scrn = GameScreen(game.display) 
         self.server = game.server
-        self.running = True
         self.clock = pygame.time.Clock()
 
     def loop(self, time_passed): 
         pass
 
     def show(self): 
-        while self.running:
+        time_passed = self.clock.tick(40)
+        while self.loop(time_passed):
             self.scrn.draw()
             time_passed = self.clock.tick(40)
-            self.loop(time_passed)
     
     def next_stage(self): 
         pass
@@ -46,8 +51,9 @@ class StartStage(Stage):
        	for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 print "Player chose to continue the game"
-                self.running = False  
+                return False
                 break
+        return True
 
     def next_stage(self): 
         print "Start connecting to server"
@@ -71,22 +77,24 @@ class JoiningStage(Stage):
             print "msg_type", msg[0]
             assert msg[0] == MsgTypeGameReady
             print "other player joined"
-            self.running = False
+            return False
+        else:
+            return True
 
     def next_stage(self):
         print "Starting new level"
-        return BattleStage(self.game)
+        return PrepareLevelStage(self.game)
 
 
-class BattleStage(Stage): 
+class PrepareLevelStage(Stage): 
 
-    STATE_NEW, STATE_WAIT_MAP, STATE_WAIT_START, \
-    STATE_READY, STATE_RUNNING, STATE_WIN, STATE_OVER = range(7)
+    STATE_NEW, STATE_WAIT_MAP, STATE_WAIT_START = range(3)
 
-    def __init__(self, game, level=1): 
+    def __init__(self, game): 
         Stage.__init__(self, game)
         self.state = self.STATE_NEW
-        self.level = level
+        self.startTime = None
+        self.downloadedMap = None
 
     def loop(self, time_passed): 
         if self.state == self.STATE_NEW: 
@@ -103,6 +111,7 @@ class BattleStage(Stage):
                 assert m_t == MsgTypeLevelMapData
                 # Construct the level container
                 print "Map Data: {}".format(m_d.map)
+                self.downloadedMap = m_d.map
 
                 # Send acknowledgement to server
                 self.server.send_message(MsgLevelReady())
@@ -113,4 +122,32 @@ class BattleStage(Stage):
             if msg: 
                 m_t, m_d = msg
                 assert m_t == MsgTypeLevelStart
-                print "Level should starts at %d" % m_d.startTime
+                print "Level should starts at", m_d.startTime 
+                self.startTime = m_d.startTime
+                print "Curren time: ", currenttime_millis()
+
+            elif self.startTime and self.startTime <= currenttime_millis():
+                print "Starting new level"
+                # stop the current stage
+                return False
+        return True
+                      
+    def next_stage(self): 
+        return BattleStage(self.game, self.downloadedMap)
+
+
+class BattleStage(Stage): 
+
+    STATE_RUNNING, STATE_OVER = range(2)
+
+    def __init__(self, game, mapData):
+        print "Create Battle Stage"
+        Stage.__init__(self, game)
+        # construct level
+        self.level = Level(self.scrn, self.server, mapData)
+       
+    def loop(self, time_passed): 
+        # call level loop
+        return self.level.loop(time_passed) 
+        # get the result if loop end
+        # decide the next stage
