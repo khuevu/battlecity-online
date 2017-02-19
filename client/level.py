@@ -12,6 +12,7 @@ class Level(object):
         self.scrn = gameScreen 
         # Level objects
         # Player tanks
+        self.player = 
         # Enemy tanks
         # Map
         self.map = Map(mapData)

@@ -50,9 +50,9 @@ class Server(object):
 
     def _extract_buffered_messages(self): 
         i = 0
+        headerSize = struct.calcsize('IB')
         while i < len(self.buffer): 
             # read message length and type
-            headerSize = 5
             length, msgType = struct.unpack('IB', self.buffer[i : i + headerSize])
             print "Received new msg of type {} with length {}".format(msgType, length) 
             # check if the complete msg has been received
@@ -83,7 +83,11 @@ class Server(object):
         else:
             return None
 
-    def send_message(self, msg): 
-        raw_msg = msg.serialize()
-        header = struct.pack('IB', len(raw_msg), msg.MSG_TYPE) 
+    def send_message(self, msgType, msg=None): 
+        if msg:
+            raw_msg = msg.serialize()
+        else:
+            raw_msg = b''
+
+        header = struct.pack('IB', len(raw_msg), msgType) 
         self.connection.send(header + raw_msg)

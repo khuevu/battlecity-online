@@ -2,7 +2,7 @@ import pygame
 import image
 from model import Drawable, Text
 from model.screen import GameScreen
-from message import *
+import message
 from level import Level
 from model.map import Map
 import time
@@ -75,7 +75,7 @@ class JoiningStage(Stage):
         msg = self.server.get_message()
         if msg: 
             print "msg_type", msg[0]
-            assert msg[0] == MsgTypeGameReady
+            assert msg[0] == message.TypeGameReady
             print "other player joined"
             return False
         else:
@@ -100,7 +100,7 @@ class PrepareLevelStage(Stage):
         if self.state == self.STATE_NEW: 
             # Request for game start for map 
             print "Send request to server to start a new level"
-            self.server.send_message(MsgRequestLevelStart())
+            self.server.send_message(message.TypeRequestLevelStart)
             self.state = self.STATE_WAIT_MAP
             
         elif self.state == self.STATE_WAIT_MAP:
@@ -108,20 +108,20 @@ class PrepareLevelStage(Stage):
             if msg:
                 m_t, m_d = msg
                 print "Receive response from server [{}: {}]".format(m_t, m_d)
-                assert m_t == MsgTypeLevelMapData
+                assert m_t == message.TypeLevelMapData
                 # Construct the level container
                 print "Map Data: {}".format(m_d.map)
                 self.downloadedMap = m_d.map
 
                 # Send acknowledgement to server
-                self.server.send_message(MsgLevelReady())
+                self.server.send_message(message.TypeLevelReady)
                 self.state = self.STATE_WAIT_START
 
         elif self.state == self.STATE_WAIT_START:
             msg = self.server.get_message()
             if msg: 
                 m_t, m_d = msg
-                assert m_t == MsgTypeLevelStart
+                assert m_t == message.TypeLevelStart
                 print "Level should starts at", m_d.startTime 
                 self.startTime = m_d.startTime
                 print "Curren time: ", currenttime_millis()
