@@ -79,6 +79,14 @@ class ActiveDrawable(Drawable):
     def is_opposite(d1, d2):
         return abs(d1 - d2) == 2
 
+    @staticmethod
+    def construct_image_set(up_image): 
+        return [up_image,
+                pygame.transform.rotate(up_image, 90),
+                pygame.transform.rotate(up_image, 180),
+                pygame.transform.rotate(up_image, 270)]
+
+
     def __init__(self, rect, images, speed, direction=DIR_UP): 
         """ Construct the object 
         Parameters: 

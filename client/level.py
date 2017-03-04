@@ -5,13 +5,13 @@ from model.tank import PlayerTank
 
 class Level(object): 
 
-    def __init__(self, gameScreen, server, mapData): 
+    def __init__(self, gameScreen, server, mapData, playerPosition): 
         self.server = server
         # screen and engine should be private and updated through the add method
         self.scrn = gameScreen 
         # Level objects
         # Player tanks
-        self.player = PlayerTank(level=self, tank_id=1, x=26 * 5, y=300)
+        self.player = PlayerTank(level=self, tankId=1, position=playerPosition)
         self.otherPlayer = None
         # Enemy tanks
         self.enemies = []

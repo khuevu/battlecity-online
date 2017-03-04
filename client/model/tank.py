@@ -8,10 +8,10 @@ class Tank(ActiveDrawable):
     Z = 100
     SIZE = 26
 
-    def __init__(self, level, tank_id, x, y, images, speed, 
+    def __init__(self, level, tankId, x, y, images, speed, 
             health, power, direction=ActiveDrawable.DIR_UP):
         ActiveDrawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), images, speed, direction)
-        self.id = tank_id
+        self.id = tankId
         self.level = level
         self.health = health
         self.power = power
@@ -68,14 +68,17 @@ class Tank(ActiveDrawable):
 
 class PlayerTank(Tank): 
 
-    images = [image.tank_player,
-            pygame.transform.rotate(image.tank_player, 90),
-            pygame.transform.rotate(image.tank_player, 180),
-            pygame.transform.rotate(image.tank_player, 270),
-            ]
+    yellow_tank_images = ActiveDrawable.construct_image_set(image.yellow_tank_player)
+    green_tank_images = ActiveDrawable.construct_image_set(image.green_tank_player)
 
-    def __init__(self, level, tank_id, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
-        Tank.__init__(self, level, tank_id, x, y, self.images, speed, health, power, direction)
+    YELLOW_PLAYER, GREEN_PLAYER = 1, 2
+
+    def __init__(self, level, tankId, position, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        startX = 26 * 5 if position == self.YELLOW_PLAYER else 26 * 10
+        startY = 300
+        image_set = self.yellow_tank_images if position == self.YELLOW_PLAYER else self.green_tank_images
+
+        Tank.__init__(self, level, tankId, startX, startY, image_set, speed, health, power, direction)
         self.direction_requested = []
 
     def loop(self, time_passed): 

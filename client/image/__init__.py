@@ -8,8 +8,8 @@ sprites = pygame.transform.scale(pygame.image.load(_image_dir + "/sprites.gif"),
 
 game_icon = sprites.subsurface(0, 0, 26, 26)
 
-tank_player = sprites.subsurface(0, 0, 26, 26)
-other_tank_player = sprites.subsurface(32, 0, 26, 26)
+yellow_tank_player = sprites.subsurface(0, 0, 26, 26)
+green_tank_player = sprites.subsurface(32, 0, 26, 26)
 
 tank_enemy_imgs = [
     sprites.subsurface(32*2, 0, 13*2, 15*2),

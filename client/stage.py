@@ -44,7 +44,7 @@ class StartStage(Stage):
         # Display start option
         startText = Text((100, 200), text="Press Enter to start", font_size=16)
         self.scrn.add(startText)
-        tankIcon = Drawable(pygame.Rect((100, 250), (32, 32)), image.tank_player)
+        tankIcon = Drawable(pygame.Rect((100, 250), (32, 32)), image.yellow_tank_player)
         self.scrn.add(tankIcon)
 
     def loop(self, time_passed): 
@@ -67,7 +67,6 @@ class JoiningStage(Stage):
         self.notification = Text((80, 200), text="Waiting for other player to join", font_size=16)
         self.scrn.add(self.notification)
         self.gameReady = False
-        self.playerPosition = None
 
     def loop(self, time_passed): 
         # Wait for other player to join
@@ -78,13 +77,13 @@ class JoiningStage(Stage):
             if m_t == message.TypeConfig:
                 # Get player position
                 print "Player will play at position ", m_d.position 
-                self.playerPosition = m_d.position
+                self.game.playerPosition = m_d.position
 
             elif m_t == message.TypeGameReady:
                 print "Other player joined"
                 self.gameReady = True
 
-            if self.playerPosition is not None and self.gameReady:
+            if self.game.playerPosition is not None and self.gameReady:
                 print "Game Ready"
                 # Complete the current stage
                 return False
@@ -153,7 +152,7 @@ class BattleStage(Stage):
         print "Create Battle Stage"
         Stage.__init__(self, game)
         # construct level
-        self.level = Level(self.scrn, self.server, mapData)
+        self.level = Level(self.scrn, self.server, mapData, game.playerPosition)
        
     def loop(self, time_passed): 
         # call level loop

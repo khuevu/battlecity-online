@@ -10,6 +10,7 @@ class Game(object):
         self.display = display
         self.serverAddr = server_addr
         self.server = Server(Connection(server_addr[0], server_addr[1]))
+        self.playerPosition = None
 
 
 if __name__ == "__main__": 
