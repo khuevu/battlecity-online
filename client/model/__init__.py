@@ -65,11 +65,63 @@ class Text(Drawable):
         self.rect.size = size
 
 
-#class AnimatedDrawable(Drawable): 
-    
-    #def __init__(self, rect, image): 
-        #Drawable.__init__(self, rect, image)
+class ActiveDrawable(Drawable): 
+    """ Object that can be rendered on the screen and its position can be changed over time."""
 
-    #def loop(time_passed=None):  
-        #pass
+    # Four basic directions
+    DIR_UP, DIR_LEFT, DIR_DOWN, DIR_RIGHT = range(4)
+    # Rotate from DIR_UP 90 degree everytime to get the other direction in order
+    DIR_SEP = 90
+    # Vectors indicate the direction 
+    DIR_VECTORS = [[0, -1], [-1, 0], [0, 1], [1, 0]]
 
+    @staticmethod
+    def is_opposite(d1, d2):
+        return abs(d1 - d2) == 2
+
+    def __init__(self, rect, images, speed, direction=DIR_UP): 
+        """ Construct the object 
+        Parameters: 
+        - images: list of object image in different directions in up, left, down, right order
+        - speed: the speed per frame of the object
+        - direction: initial direction of the object
+        """
+        assert len(images) == len(self.DIR_VECTORS)
+        self.cached_images = images
+        self.direction = direction
+        self.speed = speed
+        Drawable.__init__(self, rect, self.cached_images[direction])
+
+    def calc_next_pos(self, time_passed): 
+        """ Calculate the next rectangular position of the object by moving along 
+        the current direction. The rectangle is returned together with the delta x
+        and delta y from the topleft of the old position.
+        """
+        vx, vy = self.DIR_VECTORS[self.direction]
+        dx, dy = vx * self.speed * time_passed, vy * self.speed * time_passed
+        next_pos = self.rect.move(dx, dy)
+        return next_pos, dx, dy
+
+    def do_move(self, dx, dy):
+        """ Perform the movement in current direction by dx, dy. """
+        self.rect.move_ip(dx, dy)
+
+    def move(self, direction): 
+        """ Move the object in the given direction. The logic should be implemented 
+        by the subclass. 
+        """
+        pass
+
+    def rotate(self, direction): 
+        """ Rotate the object. """
+        if self.direction == direction: 
+            return
+
+        self.image = self.cached_images[direction]
+        # If rotation is not in the opposite direction, reposition the rect topleft corner
+        if not self.is_opposite(direction, self.direction):
+            old_center = self.rect.center
+            self.rect.width, self.rect.height = self.rect.width, self.rect.height
+            self.rect.center = old_center
+
+        self.direction = direction

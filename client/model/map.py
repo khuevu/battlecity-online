@@ -93,7 +93,7 @@ class Map(Drawable):
     HEIGHT = 26 * Terrain.SIZE
     DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT = range(4)
 
-    def __init__(self, map_data):
+    def __init__(self, level, map_data):
         Drawable.__init__(self, None, None) # Map itself doesn't have image
         self.terrains = []
         x, y = 0, 0
@@ -110,6 +110,9 @@ class Map(Drawable):
                 y += Terrain.SIZE
                 x = 0 
         assert self.HEIGHT == y
+
+        self.level = level
+        self.level.register(self)
         
     def get_terrain(self, pos):
         return self.terrains[pos[1] / Terrain.SIZE][pos[0] / Terrain.SIZE]
