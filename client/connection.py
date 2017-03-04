@@ -54,12 +54,12 @@ class Server(object):
         while i < len(self.buffer): 
             # read message length and type
             length, msgType = struct.unpack('IB', self.buffer[i : i + headerSize])
-            print "Received new msg of type {} with length {}".format(msgType, length) 
             # check if the complete msg has been received
             if i + headerSize + length <= len(self.buffer): 
                 # read the msg
                 msg = message.deserialize(msgType, self.buffer[i + headerSize : i + headerSize + length])
                 i += headerSize + length 
+                print "Received new msg of type {} : {}".format(msgType, msg) 
                 self.msgs.append([msgType, msg])
             else: 
                 break
@@ -77,7 +77,6 @@ class Server(object):
                 self.buffer += new_data
                 # extract the message to the pending msg queue
                 self._extract_buffered_messages()
-    
         if len(self.msgs) > 0: 
             return self.msgs.popleft()
         else:

@@ -62,24 +62,33 @@ class StartStage(Stage):
 
 class JoiningStage(Stage): 
 
-    STATE_WAIT_PLAYER, STATE_GET_CONF = range(2)
-
     def __init__(self, game): 
         Stage.__init__(self, game)
         self.notification = Text((80, 200), text="Waiting for other player to join", font_size=16)
         self.scrn.add(self.notification)
-        self.state = self.STATE_WAIT_PLAYER
+        self.gameReady = False
+        self.playerPosition = None
 
     def loop(self, time_passed): 
         # Wait for other player to join
         msg = self.server.get_message()
         if msg: 
-            print "msg_type", msg[0]
-            assert msg[0] == message.TypeGameReady
-            print "other player joined"
-            return False
-        else:
-            return True
+            m_t, m_d = msg
+            print "msg_type", m_t
+            if m_t == message.TypeConfig:
+                # Get player position
+                print "Player will play at position ", m_d.position 
+                self.playerPosition = m_d.position
+
+            elif m_t == message.TypeGameReady:
+                print "Other player joined"
+                self.gameReady = True
+
+            if self.playerPosition is not None and self.gameReady:
+                print "Game Ready"
+                # Complete the current stage
+                return False
+        return True
 
     def next_stage(self):
         print "Starting new level"

@@ -6,6 +6,7 @@
 namespace bt {
 // server message
 enum MessageType {
+    MsgTypeConfig, // s->c, configuration information
     MsgTypeGameReady, // s->c, when two player joined
     MsgTypeRequestLevelStart, // c->s, when player request to start a level
     MsgTypeLevelMapData, // s->c, map data
@@ -15,6 +16,10 @@ enum MessageType {
     MsgTypeTankFire, 
     MsgTypeTankExplode,
     MsgTypeTankStateInfo
+};
+
+struct MsgConfig {
+    unsigned char position;
 };
 
 struct MsgRequestGameStart {

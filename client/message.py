@@ -1,12 +1,21 @@
 import struct
 
 # Define message type
+TypeConfig, \
 TypeGameReady, \
 TypeRequestLevelStart, \
 TypeLevelMapData, \
 TypeLevelReady, \
 TypeLevelStart, \
-TypeTankMovement = range(6)
+TypeTankMovement = range(7)
+
+
+class MsgConfig(object): 
+
+    FORMAT = 'B'
+
+    def __init__(self, data): 
+        self.position = data[0]
 
 
 class MsgLevelMapData(object):
@@ -40,8 +49,11 @@ class MsgTankMovement(object):
 def deserialize(msgType, msg): 
     """ Convert byte array to Message object """
 
-    print "Deserialize ", msgType
-    if msgType == TypeLevelMapData: 
+    if msgType == TypeConfig: 
+        print "msg", repr(msg)
+        return MsgConfig(struct.unpack(MsgConfig.FORMAT, msg))
+
+    elif msgType == TypeLevelMapData: 
         # As byte are represented as string, don't need to unpack it here
         return MsgLevelMapData(msg)
 

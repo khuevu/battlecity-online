@@ -25,6 +25,11 @@ void Server::waitForPlayersToJoin() {
         if (newfd != -1) {
             std::cout << "New player joined " << std::endl;  
             d_players.emplace_back(newfd); 
+            // need to update the player abt their playing position
+            MsgConfig config;
+            config.position = (unsigned char) d_players.size();
+            std::cout << "Send config to player at position " << (int) config.position << std::endl;
+            d_players.back().prepareMsgSend(MsgTypeConfig, (char*) &config, sizeof(config)); 
         }
     }
     std::cout << "Two player joined. Notify the player that the game is ready" << std::endl;
