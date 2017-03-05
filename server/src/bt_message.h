@@ -37,8 +37,9 @@ struct MsgLevelStart {
 // message data
 struct MsgTankMove {
     unsigned char tankId; 
-    unsigned char x; 
-    unsigned char y; 
+    double x; 
+    double y; 
+    unsigned char direction;
 }; 
 
 

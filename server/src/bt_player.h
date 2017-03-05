@@ -23,10 +23,10 @@ public:
      * @brief: Construct player that is connecting at the specified socket file
      * descriptor
      */
-    Player(int socketFd); 
+    Player(int socketFd, int playPosition); 
 
     /**
-     * @brief: Get the socket filedescriptor of the player as playerId
+     * @brief: Get the playerId
      */
     int id() const {
         return d_socketFd; 
@@ -52,6 +52,13 @@ public:
      */
     OpStatus readNextMsgReceived(unsigned char* msgId, char* msg); 
 
+    /**
+     * @brief: Get the position the player play as
+     */
+    int position() const {
+        return d_position;
+    }
+
 private: 
     // storage buffer
     char d_readBuffer[BUFFER_SIZE]; 
@@ -63,6 +70,8 @@ private:
     int d_socketFd; 
     // Socket handler
     ConnectSocket d_socket; 
+    // Position of the player: first or second
+    int d_position; 
 }; 
 
     

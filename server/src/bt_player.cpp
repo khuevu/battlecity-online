@@ -3,10 +3,14 @@
 #include <bt_player.h>
 
 namespace bt {
-Player::Player(int socketFd) : 
+
+
+Player::Player(int socketFd, int playPosition) : 
     d_readBuffer(), d_writeBuffer(), 
     d_rbUsed(0), d_wbUsed(0),
-    d_socketFd(socketFd), d_socket(d_socketFd) { }
+    d_socketFd(socketFd), d_socket(d_socketFd), 
+    d_position(playPosition) { }
+
 
 Player::OpStatus Player::receiveMsg() {
     // we might want to add checksum
@@ -19,6 +23,7 @@ Player::OpStatus Player::receiveMsg() {
     d_rbUsed += nbytes / sizeof(d_readBuffer[0]); 
     return SUCCESS; 
 }
+
 
 Player::OpStatus Player::sendMsg() {
     // send message from buffer

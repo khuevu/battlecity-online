@@ -38,6 +38,7 @@ private:
     // bullet list
     // explosion list?
     // enemy tank list
+    std::vector<EnemyTank> d_enemyTanks;
     // player tank list
     std::vector<PlayerTank> d_playerTanks;
     // map 
@@ -81,6 +82,11 @@ private:
     // send map to players
     void sendMap(); 
     
+    // send state of a given tank to players;
+    void sendTankStateUpate(const Tank& target, int except=-1);
+
+    // get the player with given id
+    Player& getPlayer(int playerId) const;
 }; 
 
 }

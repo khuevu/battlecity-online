@@ -45,10 +45,6 @@ bool GameContainer::loop() {
             std::cout << "Level should starts at " << d_gameStartTime << std::endl; 
             send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));  
         } 
-        //else {
-            //// check for acknowledgement from client
-            //readMsgsFromPlayers();  
-        //}
     }
 
     if (d_state == READY) {
@@ -63,13 +59,12 @@ bool GameContainer::loop() {
         // loop other game objects  
     }
 
-    // check for acknowledgement from client
-    readMsgsFromPlayers();  
-
     // end game
     if (d_state == OVER) {
         return false; 
     }
+
+    readMsgsFromPlayers();  
     return true; 
 }
 
@@ -102,7 +97,21 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
     if (msgId == MsgTypeLevelReady) {
         std::cout << "Player " << playerId << " received map" << std::endl;
         // create new PlayerTank to join the game 
-        d_playerTanks.push_back(PlayerTank());                          
+        Player& player = getPlayer(playerId);        
+        d_playerTanks.emplace_back(player.position(), playerId);                          
+    }
+
+    if (msgId == MsgTypeTankMove) {
+        const MsgTankMove* msgTankMove = (const MsgTankMove*) msg;
+        std::cout << "Tank " << msgTankMove->tankId << " change direction " << std::endl;
+        // perform the move
+        for (PlayerTank& tank : d_playerTanks) {
+            if (tank.id() == msgTankMove->tankId) {
+                tank.updatePosition(msgTankMove->x, msgTankMove->y, msgTankMove->direction);
+                // send update to the other player except the current player
+                sendTankStateUpate(tank, playerId);
+            }
+        }
     }
 }
 
@@ -123,6 +132,27 @@ void GameContainer::sendMap() {
     }
     std::cout << "Send map data of size " << sizeof(mapDataMsg) << std::endl;
     send(MsgTypeLevelMapData, (char *)&mapDataMsg, sizeof(mapDataMsg)); 
+}
+
+void GameContainer::sendTankStateUpate(const Tank& target, int except) {
+    // construct message
+    MsgTankMove msgTankMove; 
+    msgTankMove.tankId = target.id(); 
+    msgTankMove.x = target.x(); 
+    msgTankMove.y = target.y(); 
+    msgTankMove.direction = target.direction(); 
+
+    send(MsgTypeTankMove, (char*) &msgTankMove, sizeof(msgTankMove), except); 
+}
+
+Player& GameContainer::getPlayer(int playerId) const {
+    for (Player& player : d_players) {
+        if (player.id() == playerId) {
+            return player;
+        }
+    }
+    
+    throw std::runtime_error("Invalid player Id ");
 }
 
 }

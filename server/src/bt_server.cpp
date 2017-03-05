@@ -20,15 +20,20 @@ Server::Server(int port) : d_listenSocket(port), d_supported_players(2) {
 }
 
 void Server::waitForPlayersToJoin() {
+
     while (d_players.size() < d_supported_players) {
+
         int newfd = d_listenSocket.receiveNewConnection(); 
         if (newfd != -1) {
             std::cout << "New player joined " << std::endl;  
-            d_players.emplace_back(newfd); 
+            // construct a player at the current socket and play at the given
+            // position
+            int playPosition = d_players.size() + 1;
+            d_players.emplace_back(newfd, playPosition); 
             // need to update the player abt their playing position
             MsgConfig config;
-            config.position = (unsigned char) d_players.size();
-            std::cout << "Send config to player at position " << (int) config.position << std::endl;
+            config.position = (unsigned char) playPosition;
+            std::cout << "Send config to player at position " << playPosition << std::endl;
             d_players.back().prepareMsgSend(MsgTypeConfig, (char*) &config, sizeof(config)); 
         }
     }
