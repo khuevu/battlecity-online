@@ -45,10 +45,10 @@ bool GameContainer::loop() {
             std::cout << "Level should starts at " << d_gameStartTime << std::endl; 
             send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));  
         } 
-        else {
-            // check for acknowledgement from client
-            readMsgsFromPlayers();  
-        }
+        //else {
+            //// check for acknowledgement from client
+            //readMsgsFromPlayers();  
+        //}
     }
 
     if (d_state == READY) {
@@ -62,6 +62,9 @@ bool GameContainer::loop() {
     if (d_state == RUNNING) {
         // loop other game objects  
     }
+
+    // check for acknowledgement from client
+    readMsgsFromPlayers();  
 
     // end game
     if (d_state == OVER) {
@@ -95,13 +98,11 @@ void GameContainer::readMsgsFromPlayers() {
 void GameContainer::processMsg(int playerId, unsigned char msgId, const char* msg) {
     std::cout << "Process msg " << msgId << " from player " << playerId << std::endl; 
 
-    if (d_state == WAITING) {
-        // when player acknowledge that it has received map data
-        if (msgId == MsgTypeLevelReady) {
-            std::cout << "Player " << playerId << " received map" << std::endl;
-            // create new PlayerTank to join the game 
-            d_playerTanks.push_back(PlayerTank());                          
-        }
+    // when player acknowledge that it has received map data
+    if (msgId == MsgTypeLevelReady) {
+        std::cout << "Player " << playerId << " received map" << std::endl;
+        // create new PlayerTank to join the game 
+        d_playerTanks.push_back(PlayerTank());                          
     }
 }
 
