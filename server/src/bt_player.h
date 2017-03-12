@@ -14,6 +14,7 @@ public:
         NODATA,
         FAILURE
     }; 
+
     /**
      * @brief: The size of the buffer that allocated per player
      */

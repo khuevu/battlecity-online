@@ -126,8 +126,8 @@ class PrepareLevelStage(Stage):
                 self.state = self.STATE_WAIT_START
 
         elif self.state == self.STATE_WAIT_START:
-            msg = self.server.get_message()
-            if msg: 
+            if self.startTime is None: 
+                msg = self.server.get_message()
                 m_t, m_d = msg
                 assert m_t == message.TypeLevelStart
                 print "Level should starts at", m_d.startTime 

@@ -7,7 +7,8 @@ TypeRequestLevelStart, \
 TypeLevelMapData, \
 TypeLevelReady, \
 TypeLevelStart, \
-TypeTankMovement = range(7)
+TypeTankCreation, \
+TypeTankMovement = range(8)
 
 
 class MsgConfig(object): 
@@ -34,6 +35,17 @@ class MsgLevelStart(object):
         self.startTime = data[0] 
 
 
+class MsgTankCreation(object):
+
+    FORMAT = 'BBdd'
+
+    def __init__(self, tank_id, x, y, direction): 
+        self.id = tank_id
+        self.direction = direction
+        self.x = x
+        self.y = y
+
+
 class MsgTankMovement(object): 
 
     FORMAT = 'BBBdd'
@@ -41,9 +53,9 @@ class MsgTankMovement(object):
     def __init__(self, tank_id, x, y, direction, action):
         self.id = tank_id 
         self.direction = direction
+        self.action = action
         self.x = x
         self.y = y
-        self.action = action
     
     def serialize(self): 
         return struct.pack(self.FORMAT, self.id, self.direction, self.action, self.x, self.y)
@@ -62,12 +74,10 @@ def deserialize(msgType, msg):
     elif msgType == TypeLevelStart: 
         return MsgLevelStart(struct.unpack(MsgLevelStart.FORMAT, msg))
 
+    elif msgType == TypeTankCreation:
+        tank_id, direction, x, y = struct.unpack(MsgTankCreation.FORMAT, msg)
+        return MsgTankCreation(tank_id, x, y, direction)
+
     elif msgType == TypeTankMovement:
-        print "B", struct.calcsize('B')
-        print "d", struct.calcsize('d')
-        print "BBddB", struct.calcsize('BBBdd')
-        print "receive ", len(msg), msg.encode('hex')
         tank_id, direction, action, x, y = struct.unpack(MsgTankMovement.FORMAT, msg)
         return MsgTankMovement(tank_id, x, y, direction, action)
-
-

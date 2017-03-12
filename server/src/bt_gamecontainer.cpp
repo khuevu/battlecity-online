@@ -23,6 +23,7 @@ bool GameContainer::loop() {
     if (d_state == NEW) {
         std::cout << "Start level " << d_id << ". Sending map data to clients" << std::endl;
         sendMap();   
+        // send creation of player tanks
         d_state = WAITING; // wait for player to be ready before starting the game
         // get timer going to to time the waiting time
         d_timer.start(); 
@@ -30,7 +31,7 @@ bool GameContainer::loop() {
 
     if (d_state == WAITING) {
         // new tank constructed when player acked receipt of map 
-        if (d_playerTanks.size() == 2) {
+        if (d_responses.size() == 2) {
             std::cout << "All players has received map data and ready to start level" << std::endl; 
             // when the player are all ready
             // get the estimated time to communicate to both player (ms)
@@ -44,6 +45,8 @@ bool GameContainer::loop() {
             msg.startTime = d_gameStartTime; 
             std::cout << "Level should starts at " << d_gameStartTime << std::endl; 
             send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));  
+            // clear responses tracker
+            d_responses.clear();
         } 
     }
 
@@ -51,6 +54,8 @@ bool GameContainer::loop() {
         if (currentTimeInMilliseconds() >= d_gameStartTime) {
             std::cout << "Game starts" << std::endl;
             d_state = RUNNING; 
+            // create and send information about creating player tank
+            createPlayerTanks();
         }
     }
     
@@ -97,8 +102,7 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
     if (msgId == MsgTypeLevelReady) {
         std::cout << "Player " << playerId << " received map" << std::endl;
         // create new PlayerTank to join the game 
-        Player& player = getPlayer(playerId);        
-        d_playerTanks.emplace_back(player.position(), playerId);                          
+        d_responses.emplace(playerId);
     }
 
     if (msgId == MsgTypeTankUpdate) {
@@ -146,6 +150,21 @@ void GameContainer::sendMap() {
 
     //send(MsgTypeTankMove, (char*) &msgTankMove, sizeof(msgTankMove), except); 
 //}
+
+void GameContainer::createPlayerTanks()
+{
+    std::cout << "Spawn players tank" << std::endl;
+    for (Player& player : d_players) {
+        d_playerTanks.emplace_back(player.position(), player.id());                          
+        // send update to client
+        MsgTankCreation msgTankCreate;
+        msgTankCreate.tankId = player.position(); 
+        msgTankCreate.direction = d_playerTanks.back().direction();
+        msgTankCreate.x = d_playerTanks.back().x(); 
+        msgTankCreate.y = d_playerTanks.back().y();
+        send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
+    }
+}
 
 Player& GameContainer::getPlayer(int playerId) const {
     for (Player& player : d_players) {

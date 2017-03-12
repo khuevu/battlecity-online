@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 #include <bt_player.h>
 #include <bt_tank.h>
@@ -60,6 +61,9 @@ private:
     Timer d_timer;
     unsigned long d_gameStartTime; 
 
+    // ready state
+    std::set<int> d_responses; 
+
     /**
      * @brief: Send messages to players. Messages are put in the buffer queue
      * to be flushed to the client
@@ -84,9 +88,12 @@ private:
     
     // send state of a given tank to players;
     //void sendTankStateUpdate(const Tank& target, int except=-1);
+    void createPlayerTanks();
 
     // get the player with given id
     Player& getPlayer(int playerId) const;
+
+    
 }; 
 
 }

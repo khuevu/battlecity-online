@@ -56,6 +56,15 @@ class Tank(ActiveDrawable):
         #bullet.start()
         pass
 
+    def loop(self, time_passed): 
+        pass
+
+    def update(self, x, y, direction, action): 
+        self.x = x
+        self.y = y
+        self.rotate(direction)
+        #TODO: process action
+
     #def explode(self):
         #ex_center = self.rect.center
         #ex_pos = (ex_center[0] - Explosion.SIZE_WIDTH / 2, ex_center[1] - Explosion.SIZE_HEIGHT / 2)
@@ -70,27 +79,41 @@ class Tank(ActiveDrawable):
             #self.destroy()
 
 
+YELLOW_PLAYER, GREEN_PLAYER = 1, 2
+
+def get_player_tank_images(position): 
+    if position == YELLOW_PLAYER:
+        image_set = ActiveDrawable.construct_image_set(image.yellow_tank_player) 
+    else:
+        image_set = ActiveDrawable.construct_image_set(image.green_tank_player)
+    return image_set
+
+
+class PartnerTank(Tank): 
+
+    def __init__(self, level, position, x, y, speed=0.8, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        image_set = get_player_tank_images(position)
+        tankId = position
+        print "Initialize PartnerTank at {}-{}".format(x, y)
+        Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
+
+
 class PlayerTank(Tank): 
 
-    yellow_tank_images = ActiveDrawable.construct_image_set(image.yellow_tank_player)
-    green_tank_images = ActiveDrawable.construct_image_set(image.green_tank_player)
-
-    YELLOW_PLAYER, GREEN_PLAYER = 1, 2
-
-    def __init__(self, level, position, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
-        startX = 26 * 5 if position == self.YELLOW_PLAYER else 26 * 10
-        startY = 300
-        image_set = self.yellow_tank_images if position == self.YELLOW_PLAYER else self.green_tank_images
-
+    def __init__(self, level, position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        #startX = 26 * 5 if position == YELLOW_PLAYER else 26 * 10
+        #startY = 300
+        image_set = get_player_tank_images(position)
         tankId = position
-        Tank.__init__(self, level, tankId, startX, startY, image_set, speed, health, power, direction)
+        print "Initialize PlayerTank at {}-{}".format(x, y)
+        Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
         self.direction_requested = []
 
     def _send_action_update(self, action): 
         server = self.level.server
         # only send position update if the direction change
-        tankPos = message.MsgTankMovement(self.id, self.x(), self.y(), self.direction, action)
-        print "Send update player tank position: [{}: {}-{} -> direcition: {}]".format(self.id, self.x(), self.y(), self.direction)
+        tankPos = message.MsgTankMovement(self.id, self.x, self.y, self.direction, action)
+        print "Send update player tank position: [{}: {}-{} -> direcition: {}]".format(self.id, self.x, self.y, self.direction)
         server.send_message(message.TypeTankMovement, tankPos)
 
     def loop(self, time_passed): 

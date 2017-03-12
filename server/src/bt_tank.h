@@ -1,48 +1,32 @@
 #ifndef INCLUDED_BT_TANK
 #define INCLUDED_BT_TANK
 
+#include <bt_model.h>
+
 namespace bt {
 
 /**
  * @brief: Tank base class
  */
-class Tank {
+class Tank : public Model {
 
 public: 
-    enum Status {
-        READY, 
-        ACTIVE, 
-        DESTROYED
-    };
-
     enum Action {
         STOP,
         MOVE, 
         FIRE
     };
 
-    Tank(int id); 
+    Tank(int id, double x, double y, Direction d = UP); 
 
     int id() const {
         return d_id;
     }
 
-    double x() const {
-        return d_x; 
-    }
-
-    double y() const {
-        return d_y; 
-    }
-
-    int direction() const {
-        return d_direction;
-    }
-
     void update(double fromX, double fromY, int direction, int action) {
         d_x = fromX; 
         d_y = fromY; 
-        d_direction = direction;
+        d_direction = static_cast<Direction>(direction);
 
         //TODO: 
         if (action == STOP) {
@@ -55,10 +39,6 @@ public:
 
 private: 
     const int d_id;
-    Status d_status;
-    double d_x; 
-    double d_y;
-    int d_direction;
     bool d_stopped;
 };
 
@@ -92,7 +72,7 @@ class EnemyTank : public Tank {
 
 public:
 
-    EnemyTank(int id);
+    EnemyTank(int id, double x, double y, Direction d = UP);
 
     //virtual void move(double fromX, double fromY, int direction); 
 

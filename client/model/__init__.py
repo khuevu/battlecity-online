@@ -34,12 +34,22 @@ class Drawable(object):
     def destroy(self): 
         self.state = self.S_DESTROYED
 
+    @property
     def x(self): 
         return self.rect.x
 
+    @x.setter
+    def x(self, value): 
+        self.rect.x = value
+
+    @property
     def y(self): 
         return self.rect.y
         
+    @y.setter
+    def y(self, value): 
+        self.rect.y = value
+
 
 class Text(Drawable):
     """ Text Object that can be rendered on the Screen. """
