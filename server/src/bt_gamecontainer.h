@@ -83,7 +83,7 @@ private:
     void sendMap(); 
     
     // send state of a given tank to players;
-    void sendTankStateUpate(const Tank& target, int except=-1);
+    //void sendTankStateUpdate(const Tank& target, int except=-1);
 
     // get the player with given id
     Player& getPlayer(int playerId) const;

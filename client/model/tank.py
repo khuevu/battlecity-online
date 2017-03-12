@@ -1,12 +1,14 @@
 import image
 from model import Drawable, ActiveDrawable
 import pygame
+import message
 
 
 class Tank(ActiveDrawable):
 
     Z = 100
     SIZE = 26
+    ACTION_STOP, ACTION_MOVE, ACTION_FIRE = range(3)
 
     def __init__(self, level, tankId, x, y, images, speed, 
             health, power, direction=ActiveDrawable.DIR_UP):
@@ -16,6 +18,7 @@ class Tank(ActiveDrawable):
         self.health = health
         self.power = power
         self.level.register(self) 
+        self.stopped = True
 
     def move(self, direction, time_passed):
         self.rotate(direction) 
@@ -37,9 +40,10 @@ class Tank(ActiveDrawable):
         #for tank in self.level.tanks:
             #if tank.state != Tank.S_DESTROYED and tank != self and tank.rect.colliderect(next_pos):
                 #return False
-        
+
         # Else move the tank
-        self.rect.move_ip(dx, dy)
+        self.do_move(dx, dy)
+        return True
 
     def fire(self):
         #if self.direction == ActiveDrawable.DIR_UP or self.direction == Drawable.DIR_DOWN:
@@ -73,17 +77,24 @@ class PlayerTank(Tank):
 
     YELLOW_PLAYER, GREEN_PLAYER = 1, 2
 
-    def __init__(self, level, tankId, position, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+    def __init__(self, level, position, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
         startX = 26 * 5 if position == self.YELLOW_PLAYER else 26 * 10
         startY = 300
         image_set = self.yellow_tank_images if position == self.YELLOW_PLAYER else self.green_tank_images
 
+        tankId = position
         Tank.__init__(self, level, tankId, startX, startY, image_set, speed, health, power, direction)
         self.direction_requested = []
 
+    def _send_action_update(self, action): 
+        server = self.level.server
+        # only send position update if the direction change
+        tankPos = message.MsgTankMovement(self.id, self.x(), self.y(), self.direction, action)
+        print "Send update player tank position: [{}: {}-{} -> direcition: {}]".format(self.id, self.x(), self.y(), self.direction)
+        server.send_message(message.TypeTankMovement, tankPos)
+
     def loop(self, time_passed): 
         for event in pygame.event.get():
-            # TODO: Send these events to server for processing
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.firing = True
@@ -114,9 +125,18 @@ class PlayerTank(Tank):
 
         # Move player tank along the requested directions
         if len(self.direction_requested) > 0:
-            self.move(self.direction_requested[0], time_passed)
+            old_direction = self.direction
+            moved = self.move(self.direction_requested[0], time_passed)
+            # only update if direction or state changed
+            if old_direction != self.direction or (self.stopped and moved):
+                self._send_action_update(action=self.ACTION_MOVE)
+
+            self.stopped = not moved
             #if not self.sound_channel or not self.sound_channel.get_busy():
                 #self.sound_channel = resource.sound_background.play()
         else:
             #self.sound_channel = None  # need to deallocate the channel
-            pass
+            if not self.stopped:
+                self.stopped = True
+                # send update that the tank is stopped
+                self._send_action_update(action=self.ACTION_STOP)

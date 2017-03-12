@@ -36,21 +36,23 @@ class MsgLevelStart(object):
 
 class MsgTankMovement(object): 
 
-    FORMAT = 'BB'
+    FORMAT = 'BBBdd'
 
-    def __init__(self, tank_id, direction):
+    def __init__(self, tank_id, x, y, direction, action):
         self.id = tank_id 
         self.direction = direction
+        self.x = x
+        self.y = y
+        self.action = action
     
     def serialize(self): 
-        return struct.pack(FORMAT, self.id, self.direction)
+        return struct.pack(self.FORMAT, self.id, self.direction, self.action, self.x, self.y)
 
 
 def deserialize(msgType, msg): 
     """ Convert byte array to Message object """
 
     if msgType == TypeConfig: 
-        print "msg", repr(msg)
         return MsgConfig(struct.unpack(MsgConfig.FORMAT, msg))
 
     elif msgType == TypeLevelMapData: 
@@ -61,6 +63,11 @@ def deserialize(msgType, msg):
         return MsgLevelStart(struct.unpack(MsgLevelStart.FORMAT, msg))
 
     elif msgType == TypeTankMovement:
-        return MsgTankMovement(struct.unpack(MsgTankMovement.FORMAT, msg))
+        print "B", struct.calcsize('B')
+        print "d", struct.calcsize('d')
+        print "BBddB", struct.calcsize('BBBdd')
+        print "receive ", len(msg), msg.encode('hex')
+        tank_id, direction, action, x, y = struct.unpack(MsgTankMovement.FORMAT, msg)
+        return MsgTankMovement(tank_id, x, y, direction, action)
 
 

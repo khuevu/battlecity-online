@@ -12,9 +12,7 @@ enum MessageType {
     MsgTypeLevelMapData, // s->c, map data
     MsgTypeLevelReady, // c->s, after client has received map data
     MsgTypeLevelStart, // s->c, tell client it should start level
-    MsgTypeTankMove,
-    MsgTypeTankFire, 
-    MsgTypeTankExplode,
+    MsgTypeTankUpdate,
     MsgTypeTankStateInfo
 };
 
@@ -35,11 +33,12 @@ struct MsgLevelStart {
 };
 
 // message data
-struct MsgTankMove {
+struct MsgTankUpdate {
     unsigned char tankId; 
+    unsigned char direction;
+    unsigned char action;
     double x; 
     double y; 
-    unsigned char direction;
 }; 
 
 

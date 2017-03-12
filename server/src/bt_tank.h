@@ -15,6 +15,12 @@ public:
         DESTROYED
     };
 
+    enum Action {
+        STOP,
+        MOVE, 
+        FIRE
+    };
+
     Tank(int id); 
 
     int id() const {
@@ -33,10 +39,18 @@ public:
         return d_direction;
     }
 
-    void updatePosition(double fromX, double fromY, int direction) {
+    void update(double fromX, double fromY, int direction, int action) {
         d_x = fromX; 
         d_y = fromY; 
         d_direction = direction;
+
+        //TODO: 
+        if (action == STOP) {
+            d_stopped = true;
+        }
+        else if (action == MOVE) {
+            d_stopped = false;
+        }
     }
 
 private: 
@@ -45,6 +59,7 @@ private:
     double d_x; 
     double d_y;
     int d_direction;
+    bool d_stopped;
 };
 
 

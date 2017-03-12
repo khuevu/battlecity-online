@@ -33,6 +33,12 @@ class Drawable(object):
 
     def destroy(self): 
         self.state = self.S_DESTROYED
+
+    def x(self): 
+        return self.rect.x
+
+    def y(self): 
+        return self.rect.y
         
 
 class Text(Drawable):
@@ -70,6 +76,7 @@ class ActiveDrawable(Drawable):
 
     # Four basic directions
     DIR_UP, DIR_LEFT, DIR_DOWN, DIR_RIGHT = range(4)
+    DIR_STOP = -1
     # Rotate from DIR_UP 90 degree everytime to get the other direction in order
     DIR_SEP = 90
     # Vectors indicate the direction 

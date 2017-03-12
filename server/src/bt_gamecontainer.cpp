@@ -101,15 +101,16 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
         d_playerTanks.emplace_back(player.position(), playerId);                          
     }
 
-    if (msgId == MsgTypeTankMove) {
-        const MsgTankMove* msgTankMove = (const MsgTankMove*) msg;
-        std::cout << "Tank " << msgTankMove->tankId << " change direction " << std::endl;
+    if (msgId == MsgTypeTankUpdate) {
+        const MsgTankUpdate* msgUpdate = (const MsgTankUpdate*) msg;
+        std::cout << "Tank " << msgUpdate->tankId << " change direction " << std::endl;
         // perform the move
         for (PlayerTank& tank : d_playerTanks) {
-            if (tank.id() == msgTankMove->tankId) {
-                tank.updatePosition(msgTankMove->x, msgTankMove->y, msgTankMove->direction);
+            if (tank.id() == msgUpdate->tankId) {
+                tank.update(msgUpdate->x, msgUpdate->y, msgUpdate->direction, msgUpdate->action);
                 // send update to the other player except the current player
-                sendTankStateUpate(tank, playerId);
+                std::cout << "Send update to other player " << sizeof(*msgUpdate) << std::endl;
+                send(MsgTypeTankUpdate, (char*) msgUpdate, sizeof(*msgUpdate), tank.playerId()); 
             }
         }
     }
@@ -134,16 +135,17 @@ void GameContainer::sendMap() {
     send(MsgTypeLevelMapData, (char *)&mapDataMsg, sizeof(mapDataMsg)); 
 }
 
-void GameContainer::sendTankStateUpate(const Tank& target, int except) {
-    // construct message
-    MsgTankMove msgTankMove; 
-    msgTankMove.tankId = target.id(); 
-    msgTankMove.x = target.x(); 
-    msgTankMove.y = target.y(); 
-    msgTankMove.direction = target.direction(); 
+//void GameContainer::sendTankStateUpdate(const Tank& target, int except) {
+    //// construct message
+    //MsgTankMove msgTankMove; 
+    //msgTankMove.tankId = target.id(); 
+    //msgTankMove.x = target.x(); 
+    //msgTankMove.y = target.y(); 
+    //msgTankMove.direction = target.direction(); 
+    //msgTankMove.action = target.
 
-    send(MsgTypeTankMove, (char*) &msgTankMove, sizeof(msgTankMove), except); 
-}
+    //send(MsgTypeTankMove, (char*) &msgTankMove, sizeof(msgTankMove), except); 
+//}
 
 Player& GameContainer::getPlayer(int playerId) const {
     for (Player& player : d_players) {
