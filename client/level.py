@@ -47,19 +47,20 @@ class Level(object):
         self.scrn.add(obj)
         
     def loop(self, time_passed): 
-        # process actors
+        # Loop Player
         if self.player:
             self.player.loop(time_passed)
 
+        # Loop Partner
         if self.partner: 
             self.partner.loop(time_passed)
 
-        # Enemies
+        # Loop enemies and clear destroyed
         for e in self.enemies:
             e.loop(time_passed)
         self.enemies = [e for e in self.enemies if not e.destroyed()]
 
-        # Bullet book keeping
+        # Loop bullets and clear destroyed
         for b in self.bullets:
             b.loop(time_passed)
         self.bullets = [b for b in self.bullets if not b.destroyed()]
@@ -73,7 +74,7 @@ class Level(object):
             msg = self.server.get_message()
             if msg is not None: 
                 msg_type, msg_data = msg
-                # process 
+
                 if msg_type == message.TypeTankCreation: 
                     self._create_tank(msg_data)
 
