@@ -20,11 +20,30 @@ class Level(object):
         # Bullets
         self.bullets = []
         # Map
-        self.map = Map(self, mapData)
-        #self.scrn.add(self.map)
+        self._init_map(map_data=mapData)
         # Add the object to be drawn
 
-    def register(self, obj): 
+    def _init_map(self, map_data):
+        self.map = Map(map_data)
+        self.add_to_screen(self.map)
+
+    def register_bullet(self, bullet):
+        self.bullets.append(bullet)
+        self.add_to_screen(bullet)
+
+    def register_enemy(self, enemy):
+        self.enemies.append(enemy)
+        self.add_to_screen(enemy)
+
+    @property
+    def tanks(self):
+        all_tanks = []
+        if self.player: all_tanks.append(self.player)
+        if self.partner: all_tanks.append(self.partner)
+        all_tanks.extend(self.enemies)
+        return all_tanks
+
+    def add_to_screen(self, obj):
         self.scrn.add(obj)
         
     def loop(self, time_passed): 
@@ -34,6 +53,16 @@ class Level(object):
 
         if self.partner: 
             self.partner.loop(time_passed)
+
+        # Enemies
+        for e in self.enemies:
+            e.loop(time_passed)
+        self.enemies = [e for e in self.enemies if not e.destroyed()]
+
+        # Bullet book keeping
+        for b in self.bullets:
+            b.loop(time_passed)
+        self.bullets = [b for b in self.bullets if not b.destroyed()]
 
         # process server update
         self._process_server_msg()
@@ -64,8 +93,10 @@ class Level(object):
             if tank_id == self.playerPosition:
                 # create current player tank
                 self.player = PlayerTank(self, tank_id, data.x, data.y)
+                self.add_to_screen(self.player)
             else:
                 self.partner = PartnerTank(self, tank_id, data.x, data.y)
+                self.add_to_screen(self.partner)
         else: 
             print "Create enemy tanks"
             pass
@@ -74,6 +105,7 @@ class Level(object):
     def _update_tank(self, data): 
         tank_id = data.id
         if tank_id <= 2: # Update partner tank. Player tank and partner tank has id either 1 or 2
+
             self.partner.update(data.x, data.y, data.direction, data.action)
         else: 
             # Update enemy tank

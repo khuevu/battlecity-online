@@ -1,5 +1,6 @@
 import image
 from model import Drawable, ActiveDrawable
+from model.bullet import Bullet
 import pygame
 import message
 
@@ -17,7 +18,7 @@ class Tank(ActiveDrawable):
         self.level = level
         self.health = health
         self.power = power
-        self.level.register(self) 
+        #self.level.add_to_screen(self)
         self.stopped = True
 
     def move(self, direction, time_passed):
@@ -25,38 +26,51 @@ class Tank(ActiveDrawable):
         # Check if the next position in the current direction will lead to collisions
         next_pos, dx, dy = self.calc_next_pos(time_passed)
         # If out of map, can't move
-        if next_pos.left < 0 or next_pos.right > self.level.map.WIDTH \
-                or next_pos.top < 0 or next_pos.bottom > self.level.map.HEIGHT:
+        if not self.level.map.is_within(next_pos):
             return False
 
         # If collide with terrains, can't move
-        front_terrains = self.level.map.get_terrains_view(next_pos, self.direction)
-        for terrain in front_terrains:
-            if not terrain.is_passable() and terrain.rect.colliderect(next_pos):
-                return False
+        if self.level.map.get_block(next_pos, self.direction):
+            return False
 
         # If collide with other tanks, can't move
-        #for tank in self.level.tanks:
-            #if tank.state != Tank.S_DESTROYED and tank != self and tank.rect.colliderect(next_pos):
-                #return False
+        for tank in self.level.tanks:
+            if self != tank and self.collide(tank):
+                return False
 
         # Else move the tank
         self.do_move(dx, dy)
         return True
 
-    def fire(self):
-        #if self.direction == ActiveDrawable.DIR_UP or self.direction == Drawable.DIR_DOWN:
-            #bullet_x = self.rect.center[0] - Bullet.SIZE_WIDTH / 2
-            #bullet_y = self.rect.center[1] - Bullet.SIZE_HEIGHT / 2
-        #else:
-            #bullet_x = self.rect.center[0] - Bullet.SIZE_HEIGHT / 2
-            #bullet_y = self.rect.center[1] - Bullet.SIZE_WIDTH / 2
-        #bullet = Bullet(self.level, (bullet_x, bullet_y), speed=6, direction=self.direction, owner=self)
-        #bullet.start()
-        pass
+    def _get_tank_head(self):
+        """ Get the coordinate of the gun head of the tank """
+        if self.direction == ActiveDrawable.DIR_UP:
+            x = self.x + self.SIZE / 2
+            y = self.y
 
-    def loop(self, time_passed): 
-        pass
+        elif self.direction == ActiveDrawable.DIR_DOWN:
+            x = self.x + self.SIZE / 2
+            y = self.y + self.SIZE
+
+        elif self.direction == ActiveDrawable.DIR_LEFT:
+            x = self.x
+            y = self.y + self.SIZE / 2
+
+        else:
+            x = self.x + self.SIZE
+            y = self.y + self.SIZE / 2
+        return x, y
+
+    def fire(self):
+        tank_head_x, tank_head_y = self._get_tank_head()
+        if self.direction == ActiveDrawable.DIR_UP or self.direction == ActiveDrawable.DIR_DOWN:
+            bullet_x = tank_head_x - Bullet.SIZE_WIDTH / 2
+            bullet_y = tank_head_y - Bullet.SIZE_HEIGHT / 2
+        else:
+            bullet_x = tank_head_x - Bullet.SIZE_HEIGHT / 2
+            bullet_y = tank_head_y - Bullet.SIZE_WIDTH / 2
+        bullet = Bullet(self.level, bullet_x, bullet_y, direction=self.direction, owner=self, power=self.power)
+        self.level.register_bullet(bullet)
 
     def update(self, x, y, direction, action): 
         self.x = x
@@ -97,9 +111,9 @@ def get_player_tank_images(position):
 
 class PartnerTank(Tank): 
 
-    def __init__(self, level, position, x, y, speed=0.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
-        image_set = get_player_tank_images(position)
-        tankId = position
+    def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        image_set = get_player_tank_images(play_position)
+        tankId = play_position
         print "Initialize PartnerTank at {}-{}".format(x, y)
         Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
 
@@ -114,14 +128,14 @@ class PartnerTank(Tank):
 
 class PlayerTank(Tank): 
 
-    def __init__(self, level, position, x, y, speed=0.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
-        #startX = 26 * 5 if position == YELLOW_PLAYER else 26 * 10
-        #startY = 300
-        image_set = get_player_tank_images(position)
-        tankId = position
+    def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        image_set = get_player_tank_images(play_position)
+        tankId = play_position
         print "Initialize PlayerTank at {}-{}".format(x, y)
         Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
+        # control parameters
         self.direction_requested = []
+        self.firing = False
 
     def _send_action_update(self, action): 
         server = self.level.server
@@ -156,9 +170,9 @@ class PlayerTank(Tank):
                 elif event.key == pygame.K_LEFT:
                     self.direction_requested.remove(self.DIR_LEFT)
 
-        #if self.firing:
-            #self.fire()
-            #self.firing = False
+        if self.firing:
+            self.fire()
+            self.firing = False
 
         # Move player tank along the requested directions
         if len(self.direction_requested) > 0:

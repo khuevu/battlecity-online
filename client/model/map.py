@@ -41,31 +41,34 @@ class Terrain(Drawable):
         t_image = self.tiles[t_type]
         Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), t_image)
 
-    def is_collideable(self):
+    def block_on_air(self):
         return True if self.type == Terrain.BRICK or self.type == Terrain.STONE else False
 
-    def is_passable(self):
-        return False if self.is_collideable() or self.type == Terrain.WATER else True
+    def block_on_ground(self):
+        return True if self.type == Terrain.BRICK or self.type == Terrain.STONE\
+                       or self.type == Terrain.WATER else False
     
-    #def hit(self, bullet):
-        #if not self.is_collideable():
-            #return
-        #ex_center = bullet.rect.center
-        #ex_pos = (ex_center[0] - Explosion.SIZE_WIDTH / 2, ex_center[1] - Explosion.SIZE_HEIGHT / 2)
-        #ex_sound = resource.sound_brick if self.type == self.BRICK else resource.sound_steel
-        #ex = Explosion(ex_pos, sound=ex_sound)
-        #ex.start()
-        ## destroy the terrain if the bullet is powerful enough
-        #if bullet.power > 100 or self.type == self.BRICK:
-            #self.type = self.EMPTY
-            #self.image = self.tiles[self.type]
-            #self.destroy()
+    def hit(self, bullet):
+        if not self.block_on_air():
+            # Bullet can not hit terrain that doesn't block like water, bush
+            return
 
-    #def draw(self, screen):
-        #if self.type == self.EMPTY:
-            #return
-        #else:
-            #Drawable.draw(self, screen)
+        if bullet.power <= 100 and self.type == Terrain.STONE:
+            # Normal bullet can't break stone
+            return
+
+        self.destroy()
+
+        # ex_center = bullet.rect.center
+        # ex_pos = (ex_center[0] - Explosion.SIZE_WIDTH / 2, ex_center[1] - Explosion.SIZE_HEIGHT / 2)
+        # ex_sound = resource.sound_brick if self.type == self.BRICK else resource.sound_steel
+        # ex = Explosion(ex_pos, sound=ex_sound)
+        # ex.start()
+        # # destroy the terrain if the bullet is powerful enough
+        # if bullet.power > 100 or self.type == self.BRICK:
+        #     self.type = self.EMPTY
+        #     self.image = self.tiles[self.type]
+        #     self.destroy()
 
 
 #class Castle(Drawable):
@@ -93,7 +96,7 @@ class Map(Drawable):
     HEIGHT = 26 * Terrain.SIZE
     DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT = range(4)
 
-    def __init__(self, level, map_data):
+    def __init__(self, map_data):
         Drawable.__init__(self, None, None) # Map itself doesn't have image
         self.terrains = []
         x, y = 0, 0
@@ -110,14 +113,11 @@ class Map(Drawable):
                 y += Terrain.SIZE
                 x = 0 
         assert self.HEIGHT == y
-
-        self.level = level
-        self.level.register(self)
         
     def get_terrain(self, pos):
         return self.terrains[pos[1] / Terrain.SIZE][pos[0] / Terrain.SIZE]
 
-    def get_terrains_view(self, pos_rect, direction):
+    def _get_terrains_view(self, pos_rect, direction):
         # get all overlap terrains
         if direction == self.DIR_UP:
             start_x, start_y = pos_rect.topleft
@@ -153,8 +153,40 @@ class Map(Drawable):
                     view.append(self.terrains[row][col])
         return view
 
+    def is_within(self, rect_position):
+        """ Return True if the rect is within the map and False other wise """
+        if rect_position.left < 0 or rect_position.right > self.WIDTH \
+                or rect_position.top < 0 or rect_position.bottom > self.HEIGHT:
+            return False
+        return True
+
+    def get_block(self, rect_position, direction, on_air=False):
+        """
+        Return the terrain on the map that overlap and possible to block the movement
+        :param rect_position: current position
+        :param direction: the direction of movement
+        :param on_air: only consider terrains that block on air
+        :return:
+        """
+        front_terrains = self._get_terrains_view(rect_position, direction)
+
+        for terrain in front_terrains:
+            if on_air:  # only check for blockage of on air object such as bullet
+                if terrain.block_on_air() and terrain.rect.colliderect(rect_position):
+                    return terrain
+            else:
+                if terrain.block_on_ground() and terrain.rect.colliderect(rect_position):
+                    return terrain
+
+        return None
+
+
+
     def draw(self, screen): 
         for row in self.terrains: 
-            for t in row: 
-                if t: # if not an empty terrain 
-                    t.draw(screen)
+            for i, terrain in enumerate(row):
+                if terrain and not terrain.destroyed(): # if not an empty terrain
+                    terrain.draw(screen)
+                else:
+                    # Remove destroyed terrain
+                    row[i] = None

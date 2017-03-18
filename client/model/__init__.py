@@ -34,6 +34,9 @@ class Drawable(object):
     def destroy(self): 
         self.state = self.S_DESTROYED
 
+    def destroyed(self):
+        return self.state == self.S_DESTROYED
+
     @property
     def x(self): 
         return self.rect.x
@@ -49,6 +52,9 @@ class Drawable(object):
     @y.setter
     def y(self, value): 
         self.rect.y = value
+
+    def collide(self, other):
+        return self.rect.colliderect(other.rect)
 
 
 class Text(Drawable):
