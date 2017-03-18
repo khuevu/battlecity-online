@@ -34,16 +34,14 @@ void Server::waitForPlayersToJoin() {
             MsgConfig config;
             config.position = (unsigned char) playPosition;
             std::cout << "Send config to player at position " << playPosition << std::endl;
-            d_players.back().prepareMsgSend(MsgTypeConfig, (char*) &config, sizeof(config)); 
+            d_players.back().sendMsg(MsgTypeConfig, (char *) &config, sizeof(config));
         }
     }
     std::cout << "Two player joined. Notify the player that the game is ready" << std::endl;
     // send update to players
     for (Player& player : d_players) {
-        player.prepareMsgSend(MsgTypeGameReady, NULL, 0); 
+        player.sendMsg(MsgTypeGameReady, NULL, 0);
     }
-    // flush
-    sendDataToPlayers(); 
 }
 
 void Server::waitForPlayersReadyForNewLevel() {
@@ -71,11 +69,6 @@ void Server::receiveDataFromPlayers() {
     }
 }
 
-void Server::sendDataToPlayers() {
-    for (Player& player : d_players) {
-        player.sendMsg(); 
-    }
-}
 
 void Server::startGame() {
     int level(1); 
@@ -97,9 +90,6 @@ void Server::runLevel(int levelNumber) {
 
         container.loop(); 
 
-        // flush the data to be sent to players in the buffer to the client
-        // sockets
-        sendDataToPlayers();
     }
 }
 

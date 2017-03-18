@@ -43,10 +43,7 @@ private:
 
     // cycle through the sockets, receive data from client and save to player
     // buffer
-    void receiveDataFromPlayers(); 
-
-    // send data in the player buffer to client
-    void sendDataToPlayers(); 
+    void receiveDataFromPlayers();
 
     // wait for all players to ready for new level
     void waitForPlayersReadyForNewLevel();

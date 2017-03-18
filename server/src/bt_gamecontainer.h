@@ -46,7 +46,7 @@ private:
     Map d_map; 
 
     // process
-    Process d_process; 
+    // Process d_process;
     // game state
     enum State {
         NEW,

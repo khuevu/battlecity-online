@@ -12,7 +12,6 @@ const std::string GameContainer::MAP_RESOURCE_PATH = "levels/";
 GameContainer::GameContainer(int levelNumber, std::vector<Player>& players) : 
     d_id(levelNumber), d_players(players), 
     d_map(),
-    d_process(*this),  
     d_state(NEW) {
         // load map data
         loadMap();  
@@ -76,7 +75,7 @@ bool GameContainer::loop() {
 void GameContainer::send(unsigned char msgId, const char* msg, size_t msgLength, int except) {
     for (Player& player : d_players) {
         if (player.id() != except) {
-            player.prepareMsgSend(msgId, msg, msgLength); 
+            player.sendMsg(msgId, msg, msgLength);
         }
     }
 }

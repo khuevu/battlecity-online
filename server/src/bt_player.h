@@ -18,7 +18,7 @@ public:
     /**
      * @brief: The size of the buffer that allocated per player
      */
-    static const size_t BUFFER_SIZE = 1024; 
+    static const size_t BUFFER_SIZE = 1024;
 
     /**
      * @brief: Construct player that is connecting at the specified socket file
@@ -39,14 +39,9 @@ public:
     OpStatus receiveMsg(); 
 
     /**
-     * @brief: Send message to the player from the buffer
+     * @brief: Send message to the client player
      */
-    OpStatus sendMsg(); 
-
-    /**
-     * @brief: Add message to the buffer queue to be sent to the client player
-     */
-    OpStatus prepareMsgSend(unsigned char msgId, const char* msg, size_t msgLength); 
+    OpStatus sendMsg(unsigned char msgId, const char *msg, size_t msgLength);
 
     /**
      * @brief: Get message from the buffer
@@ -62,11 +57,10 @@ public:
 
 private: 
     // storage buffer
-    char d_readBuffer[BUFFER_SIZE]; 
-    char d_writeBuffer[BUFFER_SIZE]; 
+    char d_readBuffer[BUFFER_SIZE];
+    char d_writeBuffer[BUFFER_SIZE];
     // buffer length
     size_t d_rbUsed; 
-    size_t d_wbUsed; 
     // socket fd
     int d_socketFd; 
     // Socket handler
