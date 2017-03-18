@@ -24,7 +24,6 @@ class Tank(ActiveDrawable):
         self.rotate(direction) 
         # Check if the next position in the current direction will lead to collisions
         next_pos, dx, dy = self.calc_next_pos(time_passed)
-
         # If out of map, can't move
         if next_pos.left < 0 or next_pos.right > self.level.map.WIDTH \
                 or next_pos.top < 0 or next_pos.bottom > self.level.map.HEIGHT:
@@ -63,7 +62,14 @@ class Tank(ActiveDrawable):
         self.x = x
         self.y = y
         self.rotate(direction)
-        #TODO: process action
+        if action == self.ACTION_STOP:
+            self.stopped = True
+        elif action == self.ACTION_MOVE:
+            self.stopped = False
+        elif action == self.ACTION_FIRE:
+            self.fire()
+        else:
+            print "Invalid action", action
 
     #def explode(self):
         #ex_center = self.rect.center
@@ -91,16 +97,24 @@ def get_player_tank_images(position):
 
 class PartnerTank(Tank): 
 
-    def __init__(self, level, position, x, y, speed=0.8, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+    def __init__(self, level, position, x, y, speed=0.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
         image_set = get_player_tank_images(position)
         tankId = position
         print "Initialize PartnerTank at {}-{}".format(x, y)
         Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
 
+    def loop(self, time_passed):
+        """ Moving the partner tank along the current direction
+        This is an optimization. Updates are only received when partner tank change direction | action
+        instead of continuous updates, therefore, reducing the amount of data communicated over the network
+        """
+        if not self.stopped:
+            self.move(self.direction, time_passed)
+
 
 class PlayerTank(Tank): 
 
-    def __init__(self, level, position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+    def __init__(self, level, position, x, y, speed=0.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
         #startX = 26 * 5 if position == YELLOW_PLAYER else 26 * 10
         #startY = 300
         image_set = get_player_tank_images(position)
@@ -150,7 +164,7 @@ class PlayerTank(Tank):
         if len(self.direction_requested) > 0:
             old_direction = self.direction
             moved = self.move(self.direction_requested[0], time_passed)
-            # only update if direction or state changed
+            # only update if direction or state changed, i.e, tank from stopping to moving
             if old_direction != self.direction or (self.stopped and moved):
                 self._send_action_update(action=self.ACTION_MOVE)
 

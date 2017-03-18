@@ -31,7 +31,7 @@ class Connection(object):
             if len(data) == 0:
                 # if select return socket as ready but the data length is 0, probably the other end has hung up
                 raise socket.error("Disconnected")
-            print "Connection receive data ", ':'.join(x.encode('hex') for x in data)
+            # print "Connection receive data ", ':'.join(x.encode('hex') for x in data)
             return data
         else:
             return None
@@ -59,7 +59,7 @@ class Server(object):
                 # read the msg
                 msg = message.deserialize(msgType, self.buffer[i + headerSize : i + headerSize + length])
                 i += headerSize + length 
-                print "Received new msg of type {} : {}".format(msgType, msg) 
+                # print "Received new msg of type {} : {}".format(msgType, msg)
                 self.msgs.append([msgType, msg])
             else: 
                 break

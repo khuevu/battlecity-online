@@ -73,7 +73,7 @@ class Level(object):
 
     def _update_tank(self, data): 
         tank_id = data.id
-        if tank_id <= 2: # Update partner tank
+        if tank_id <= 2: # Update partner tank. Player tank and partner tank has id either 1 or 2
             self.partner.update(data.x, data.y, data.direction, data.action)
         else: 
             # Update enemy tank
