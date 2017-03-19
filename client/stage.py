@@ -5,10 +5,7 @@ from model.screen import GameScreen
 import message
 from level import Level
 from model.map import Map
-import time
-
-
-currenttime_millis = lambda: int(round(time.time() * 1000))
+from util import currenttime_millis
 
 
 class Stage(object): 
@@ -132,7 +129,6 @@ class PrepareLevelStage(Stage):
                 assert m_t == message.TypeLevelStart
                 print "Level should starts at", m_d.startTime 
                 self.startTime = m_d.startTime
-                print "Curren time: ", currenttime_millis()
 
             elif self.startTime and self.startTime <= currenttime_millis():
                 print "Starting new level"

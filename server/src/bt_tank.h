@@ -12,9 +12,9 @@ class Tank : public Model {
 
 public: 
     enum Action {
-        STOP,
-        MOVE, 
-        FIRE
+        FIRE,
+        EXPLODE,
+        ITEM
     };
 
     Tank(int id, double x, double y, Direction d = UP); 
@@ -23,18 +23,20 @@ public:
         return d_id;
     }
 
-    void update(double fromX, double fromY, int direction, int action) {
+    void updateMovement(double fromX, double fromY, int direction, bool moving) {
         d_x = fromX; 
         d_y = fromY; 
         d_direction = static_cast<Direction>(direction);
-
-        //TODO: 
-        if (action == STOP) {
+        if (moving) {
+            d_stopped = false;
+        } else {
             d_stopped = true;
         }
-        else if (action == MOVE) {
-            d_stopped = false;
-        }
+    }
+
+    void updateAction(Action action) {
+        //TODO: We might want to keep track of player action at the server-side
+        // in order to do validation
     }
 
 private: 

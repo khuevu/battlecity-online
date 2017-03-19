@@ -104,16 +104,26 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
         d_responses.emplace(playerId);
     }
 
-    if (msgId == MsgTypeTankUpdate) {
-        const MsgTankUpdate* msgUpdate = (const MsgTankUpdate*) msg;
-        std::cout << "Tank " << msgUpdate->tankId << " change direction " << std::endl;
+    if (msgId == MsgTypeTankMovement) {
+        const MsgTankMovement* msgMovement = (const MsgTankMovement*) msg;
+        std::cout << "Tank " << msgMovement->tankId << " change direction " << std::endl;
         // perform the move
         for (PlayerTank& tank : d_playerTanks) {
-            if (tank.id() == msgUpdate->tankId) {
-                tank.update(msgUpdate->x, msgUpdate->y, msgUpdate->direction, msgUpdate->action);
+            if (tank.id() == msgMovement->tankId) {
+                tank.updateMovement(msgMovement->x, msgMovement->y, msgMovement->direction, msgMovement->moving);
                 // send update to the other player except the current player
-                std::cout << "Send update to other player " << sizeof(*msgUpdate) << std::endl;
-                send(MsgTypeTankUpdate, (char*) msgUpdate, sizeof(*msgUpdate), tank.playerId()); 
+                send(MsgTypeTankMovement, (char*) msgMovement, sizeof(*msgMovement), tank.playerId());
+            }
+        }
+    }
+
+    if (msgId == MsgTypeTankAction) {
+        const MsgTankAction* msgAction = (const MsgTankAction*) msg;
+        std::cout << "Tank " << msgAction->tankId << " action: " << msgAction->action << std::endl;
+        for (PlayerTank& tank : d_playerTanks) {
+            if (tank.id() == msgAction->tankId) {
+                tank.updateAction(static_cast<Tank::Action >(msgAction->action));
+                send(MsgTypeTankAction, (char*) msgAction, sizeof(*msgAction), tank.playerId());
             }
         }
     }

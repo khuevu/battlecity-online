@@ -79,8 +79,10 @@ class Level(object):
                     self._create_tank(msg_data)
 
                 elif msg_type == message.TypeTankMovement:
-                    self._update_tank(msg_data)
+                    self._update_tank_movement(msg_data)
 
+                elif msg_type == message.TypeTankAction:
+                    self._update_tank_action(msg_data)
                 else:
                     print msg
             else: 
@@ -101,14 +103,22 @@ class Level(object):
         else: 
             print "Create enemy tanks"
             pass
-    
 
-    def _update_tank(self, data): 
+    def _is_partner_id(self, tank_id):
+        # Player tank and partner tank has id either 1 or 2
+        return tank_id <= 2 and tank_id != self.playerPosition
+
+    def _update_tank_movement(self, data):
         tank_id = data.id
-        if tank_id <= 2: # Update partner tank. Player tank and partner tank has id either 1 or 2
-
-            self.partner.update(data.x, data.y, data.direction, data.action)
+        if self._is_partner_id(tank_id): # Update partner tank.
+            self.partner.update_movement(data.x, data.y, data.direction, data.moving)
         else: 
             # Update enemy tank
             pass
-        
+
+    def _update_tank_action(self, data):
+        tank_id = data.id
+        if self._is_partner_id(tank_id):
+            self.partner.update_action(data.action)
+        else:
+            pass

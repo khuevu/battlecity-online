@@ -8,7 +8,8 @@ TypeLevelMapData, \
 TypeLevelReady, \
 TypeLevelStart, \
 TypeTankCreation, \
-TypeTankMovement = range(8)
+TypeTankMovement, \
+TypeTankAction = range(9)
 
 
 class MsgConfig(object): 
@@ -50,15 +51,27 @@ class MsgTankMovement(object):
 
     FORMAT = 'BBBdd'
 
-    def __init__(self, tank_id, x, y, direction, action):
+    def __init__(self, tank_id, x, y, direction, moving):
         self.id = tank_id 
         self.direction = direction
-        self.action = action
+        self.moving = moving
         self.x = x
         self.y = y
     
     def serialize(self): 
-        return struct.pack(self.FORMAT, self.id, self.direction, self.action, self.x, self.y)
+        return struct.pack(self.FORMAT, self.id, self.direction, self.moving, self.x, self.y)
+
+
+class MsgTankAction(object):
+
+    FORMAT = 'BB'
+
+    def __init__(self, tank_id, action):
+        self.id = tank_id
+        self.action = action
+
+    def serialize(self):
+        return struct.pack(self.FORMAT, self.id, self.action)
 
 
 def deserialize(msgType, msg): 
@@ -79,5 +92,9 @@ def deserialize(msgType, msg):
         return MsgTankCreation(tank_id, x, y, direction)
 
     elif msgType == TypeTankMovement:
-        tank_id, direction, action, x, y = struct.unpack(MsgTankMovement.FORMAT, msg)
-        return MsgTankMovement(tank_id, x, y, direction, action)
+        tank_id, direction, moving, x, y = struct.unpack(MsgTankMovement.FORMAT, msg)
+        return MsgTankMovement(tank_id, x, y, direction, moving)
+
+    elif msgType == TypeTankAction:
+        tank_id, action = struct.unpack(MsgTankAction.FORMAT, msg)
+        return MsgTankAction(tank_id, action)

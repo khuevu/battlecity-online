@@ -3,23 +3,27 @@ from model import Drawable, ActiveDrawable
 from model.bullet import Bullet
 import pygame
 import message
+from util import currenttime_millis
 
 
 class Tank(ActiveDrawable):
 
     Z = 100
     SIZE = 26
-    ACTION_STOP, ACTION_MOVE, ACTION_FIRE = range(3)
+    ACTION_FIRE, ACTION_EXPLODE, ACTION_ITEM = range(3)
 
     def __init__(self, level, tankId, x, y, images, speed, 
-            health, power, direction=ActiveDrawable.DIR_UP):
+            health, power, direction=ActiveDrawable.DIR_UP, recharge_time=500):
         ActiveDrawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), images, speed, direction)
         self.id = tankId
         self.level = level
         self.health = health
         self.power = power
-        #self.level.add_to_screen(self)
+
         self.stopped = True
+        # Recharge time in milliseconds
+        self.recharge_time = recharge_time
+        self.last_fired = 0
 
     def move(self, direction, time_passed):
         self.rotate(direction) 
@@ -62,6 +66,13 @@ class Tank(ActiveDrawable):
         return x, y
 
     def fire(self):
+        """ Trigger fire. Return True if fire successfully and False otherwise.
+        Tank can only fire after it has fully recharged
+        """
+        current_time = currenttime_millis()
+        if current_time - self.last_fired < self.recharge_time: # not fully recharge yet
+            return False
+
         tank_head_x, tank_head_y = self._get_tank_head()
         if self.direction == ActiveDrawable.DIR_UP or self.direction == ActiveDrawable.DIR_DOWN:
             bullet_x = tank_head_x - Bullet.SIZE_WIDTH / 2
@@ -71,19 +82,27 @@ class Tank(ActiveDrawable):
             bullet_y = tank_head_y - Bullet.SIZE_WIDTH / 2
         bullet = Bullet(self.level, bullet_x, bullet_y, direction=self.direction, owner=self, power=self.power)
         self.level.register_bullet(bullet)
+        # Reset time
+        self.last_fired = current_time
+        # Success
+        return True
 
-    def update(self, x, y, direction, action): 
+    def update_movement(self, x, y, direction, moving):
         self.x = x
         self.y = y
         self.rotate(direction)
-        if action == self.ACTION_STOP:
-            self.stopped = True
-        elif action == self.ACTION_MOVE:
+        if moving:
             self.stopped = False
-        elif action == self.ACTION_FIRE:
-            self.fire()
         else:
-            print "Invalid action", action
+            self.stopped = True
+
+    def update_action(self, action):
+        if action == self.ACTION_FIRE:
+            self.fire()
+
+        else:
+            # TODO: process other actions
+            pass
 
     #def explode(self):
         #ex_center = self.rect.center
@@ -135,20 +154,25 @@ class PlayerTank(Tank):
         Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
         # control parameters
         self.direction_requested = []
-        self.firing = False
+        self.firing_requested = False
 
-    def _send_action_update(self, action): 
+    def _send_movement_update(self, moving):
         server = self.level.server
-        # only send position update if the direction change
-        tankPos = message.MsgTankMovement(self.id, self.x, self.y, self.direction, action)
+        tank_movement = message.MsgTankMovement(self.id, self.x, self.y, self.direction, moving)
         print "Send update player tank position: [{}: {}-{} -> direcition: {}]".format(self.id, self.x, self.y, self.direction)
-        server.send_message(message.TypeTankMovement, tankPos)
+        server.send_message(message.TypeTankMovement, tank_movement)
+
+    def _send_action_update(self, action):
+        server = self.level.server
+        tank_action = message.MsgTankAction(self.id, action)
+        server.send_message(message.TypeTankAction, tank_action)
+
 
     def loop(self, time_passed): 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    self.firing = True
+                    self.firing_requested = True
                 elif event.key == pygame.K_UP:
                     self.direction_requested.append(self.DIR_UP)
                 elif event.key == pygame.K_RIGHT:
@@ -160,7 +184,7 @@ class PlayerTank(Tank):
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
-                    self.firing = False
+                    self.firing_requested = False
                 elif event.key == pygame.K_UP:
                     self.direction_requested.remove(self.DIR_UP)
                 elif event.key == pygame.K_RIGHT:
@@ -170,9 +194,11 @@ class PlayerTank(Tank):
                 elif event.key == pygame.K_LEFT:
                     self.direction_requested.remove(self.DIR_LEFT)
 
-        if self.firing:
-            self.fire()
-            self.firing = False
+        if self.firing_requested:
+            fired = self.fire()
+            if fired:
+                self._send_action_update(self.ACTION_FIRE)
+            self.firing_requested = False
 
         # Move player tank along the requested directions
         if len(self.direction_requested) > 0:
@@ -180,7 +206,7 @@ class PlayerTank(Tank):
             moved = self.move(self.direction_requested[0], time_passed)
             # only update if direction or state changed, i.e, tank from stopping to moving
             if old_direction != self.direction or (self.stopped and moved):
-                self._send_action_update(action=self.ACTION_MOVE)
+                self._send_movement_update(moving=True)
 
             self.stopped = not moved
             #if not self.sound_channel or not self.sound_channel.get_busy():
@@ -190,4 +216,4 @@ class PlayerTank(Tank):
             if not self.stopped:
                 self.stopped = True
                 # send update that the tank is stopped
-                self._send_action_update(action=self.ACTION_STOP)
+                self._send_movement_update(moving=False)
