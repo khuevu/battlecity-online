@@ -71,22 +71,25 @@ class Terrain(Drawable):
         #     self.destroy()
 
 
-#class Castle(Drawable):
+class Castle(Drawable):
 
-    #SIZE = 32
+    SIZE = 32
 
-    #def __init__(self, level):
-        #x = 12 * 16
-        #y = 24 * 16
-        #self.level = level
-        #Drawable.__init__(self, (x, y), self.SIZE, self.SIZE, image=resource.castle_img)
+    def __init__(self):
+        x = 12 * 16
+        y = 24 * 16
+        Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), image.castle_img)
+        self.alive = True
 
-    #def hit(self, bullet):
-        #ex_pos = self.rect.topleft
-        #ex = Explosion(ex_pos, extra=True)
-        #ex.start()
-        #self.image = resource.castle_destroyed_img
-        #self.level.on_castle_destroyed()
+    def hit(self, bullet):
+        # ex_pos = self.rect.topleft
+        # ex = Explosion(ex_pos, extra=True)
+        # ex.start()
+        self.image = image.castle_destroyed_img
+        self.alive = False
+
+    def destroyed(self):
+        return not self.alive
 
 
 class Map(Drawable):

@@ -39,7 +39,7 @@ class Tank(ActiveDrawable):
 
         # If collide with other tanks, can't move
         for tank in self.level.tanks:
-            if self != tank and self.collide(tank):
+            if self != tank and tank.collide(next_pos):
                 return False
 
         # Else move the tank
@@ -110,12 +110,11 @@ class Tank(ActiveDrawable):
         #ex = Explosion(ex_pos)
         #ex.start()
 
-    #def hit(self, bullet):
-        #self.health -= bullet.power
-        #if self.health <= 0:
-            #self.state = self.S_DESTROYED
+    def hit(self, bullet):
+        self.health -= bullet.power
+        if self.health <= 0:
+            self.destroy()
             #self.explode()
-            #self.destroy()
 
 
 YELLOW_PLAYER, GREEN_PLAYER = 1, 2

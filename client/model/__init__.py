@@ -53,8 +53,8 @@ class Drawable(object):
     def y(self, value): 
         self.rect.y = value
 
-    def collide(self, other):
-        return self.rect.colliderect(other.rect)
+    def collide(self, rect):
+        return self.rect.colliderect(rect)
 
 
 class Text(Drawable):

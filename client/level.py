@@ -1,5 +1,5 @@
 from model.screen import GameScreen
-from model.map import Map
+from model.map import Map, Castle
 from model.tank import PlayerTank, PartnerTank
 import message
 
@@ -19,13 +19,14 @@ class Level(object):
         self.enemies = []
         # Bullets
         self.bullets = []
-        # Map
         self._init_map(map_data=mapData)
         # Add the object to be drawn
 
     def _init_map(self, map_data):
         self.map = Map(map_data)
         self.add_to_screen(self.map)
+        self.castle = Castle()
+        self.add_to_screen(self.castle)
 
     def register_bullet(self, bullet):
         self.bullets.append(bullet)

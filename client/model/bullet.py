@@ -32,22 +32,11 @@ class Bullet(ActiveDrawable):
     #     ex.update(0)
 
     def move(self, time_passed):
-        # dx, dy = self.direction_vector[0] * self.speed, self.direction_vector[1] * self.speed
-        # next_rect = self.rect.move(dx, dy)
-        #
-        # if next_rect.top < 0 or next_rect.bottom > self.level.map.height or next_rect.left < 0 \
-        #         or next_rect.right > self.level.map.width:
-        #     self.explode()
-        #     return False
-
         # Check if the next position in the current direction will lead to collisions
         next_pos, dx, dy = self.calc_next_pos(time_passed)
         # If out of map, can't move
         if not self.level.map.is_within(next_pos):
             return False
-        # if next_pos.left < 0 or next_pos.right > self.level.map.WIDTH \
-        #         or next_pos.top < 0 or next_pos.bottom > self.level.map.HEIGHT:
-        #     return False
 
         # Check for collision with terrains
         block_terrain = self.level.map.get_block(next_pos, self.direction, on_air=True)
@@ -55,27 +44,23 @@ class Bullet(ActiveDrawable):
             block_terrain.hit(self)
             return False
 
-        # front_terrains = self.level.map.get_terrains_view(next_rect, self.direction)
-        # for terrain in front_terrains:
-        #     if terrain.block_on_air() and terrain.rect.colliderect(next_rect):
-        #         terrain.hit(self)
-        #         return False
         # Check for collision with other tanks
+        for tank in self.level.tanks:
+            if self.owner != tank and tank.collide(next_pos):
+                tank.hit(self)
+                return False
 
-        # for tank in self.level.tanks:
-        #     if tank != self.owner and tank.collide(self):
-        #         tank.hit(self)
-        #         return False
-        #
-        # # Check for collision with other bullets
-        # for bullet in self.level.bullets:
-        #     if self != bullet and bullet.rect.colliderect(next_pos):
-        #         return False
-        #
-        # # Check for collision with castle
-        # if self.rect.colliderect(self.level.castle.rect):
-        #     self.level.castle.hit(self)
-        #     return False
+        # Check for collision with other bullets
+        for bullet in self.level.bullets:
+            if self != bullet and bullet.collide(next_pos):
+                # Bullet will automatically destroyed if not moved
+                # Other bullet will destry itself.
+                return False
+
+        # Check for collision with castle
+        if self.level.castle.collide(next_pos):
+            self.level.castle.hit(self)
+            return False
 
         self.do_move(dx, dy)
         return True
