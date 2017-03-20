@@ -1,6 +1,7 @@
 from model.screen import GameScreen
 from model.map import Map, Castle
 from model.tank import PlayerTank, PartnerTank
+from model.stats import StatBar
 import message
 
 
@@ -27,6 +28,8 @@ class Level(object):
         self.add_to_screen(self.map)
         self.castle = Castle()
         self.add_to_screen(self.castle)
+        self.stats = StatBar()
+        self.add_to_screen(self.stats)
 
     def register_bullet(self, bullet):
         self.bullets.append(bullet)
