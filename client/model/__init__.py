@@ -53,6 +53,10 @@ class Drawable(object):
     def y(self, value): 
         self.rect.y = value
 
+    @property
+    def center(self):
+        return self.rect.center
+
     def collide(self, rect):
         return self.rect.colliderect(rect)
 

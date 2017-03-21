@@ -1,4 +1,5 @@
 from model import Drawable
+from model.explosion import explode
 import image
 import pygame
 
@@ -14,10 +15,10 @@ class Terrain(Drawable):
             image.tile_grass, image.tile_water, image.tile_froze]
 
     @staticmethod
-    def make(symbol, x, y): 
+    def make(level, symbol, x, y):
         t_type = Terrain._get_type(symbol)
         if t_type is not None: 
-            return Terrain(t_type, x, y)
+            return Terrain(level, t_type, x, y)
         else:
             return None
 
@@ -36,7 +37,8 @@ class Terrain(Drawable):
         else:
             return None
 
-    def __init__(self, t_type, x, y):
+    def __init__(self, level, t_type, x, y):
+        self.level = level
         self.type = t_type
         t_image = self.tiles[t_type]
         Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), t_image)
@@ -47,7 +49,7 @@ class Terrain(Drawable):
     def block_on_ground(self):
         return True if self.type == Terrain.BRICK or self.type == Terrain.STONE\
                        or self.type == Terrain.WATER else False
-    
+
     def hit(self, bullet):
         if not self.block_on_air():
             # Bullet can not hit terrain that doesn't block like water, bush
@@ -58,35 +60,24 @@ class Terrain(Drawable):
             return
 
         self.destroy()
-
-        # ex_center = bullet.rect.center
-        # ex_pos = (ex_center[0] - Explosion.SIZE_WIDTH / 2, ex_center[1] - Explosion.SIZE_HEIGHT / 2)
-        # ex_sound = resource.sound_brick if self.type == self.BRICK else resource.sound_steel
-        # ex = Explosion(ex_pos, sound=ex_sound)
-        # ex.start()
-        # # destroy the terrain if the bullet is powerful enough
-        # if bullet.power > 100 or self.type == self.BRICK:
-        #     self.type = self.EMPTY
-        #     self.image = self.tiles[self.type]
-        #     self.destroy()
+        self.level.register_explosion(explode(self))
 
 
 class Castle(Drawable):
 
     SIZE = 32
 
-    def __init__(self):
+    def __init__(self, level):
+        self.level = level
         x = 12 * 16
         y = 24 * 16
         Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), image.castle_img)
         self.alive = True
 
     def hit(self, bullet):
-        # ex_pos = self.rect.topleft
-        # ex = Explosion(ex_pos, extra=True)
-        # ex.start()
         self.image = image.castle_destroyed_img
         self.alive = False
+        self.level.register_explosion(explode(self))
 
     def destroyed(self):
         return not self.alive
@@ -99,14 +90,15 @@ class Map(Drawable):
     HEIGHT = 26 * Terrain.SIZE
     DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT = range(4)
 
-    def __init__(self, map_data):
+    def __init__(self, level, map_data):
+        self.level = level
         Drawable.__init__(self, None, None) # Map itself doesn't have image
         self.terrains = []
         x, y = 0, 0
         row = []
 
         for s in map_data:
-            row.append(Terrain.make(s, x, y))
+            row.append(Terrain.make(self.level, s, x, y))
 
             x += Terrain.SIZE
             if (x == self.WIDTH): 

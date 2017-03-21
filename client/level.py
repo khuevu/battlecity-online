@@ -20,13 +20,15 @@ class Level(object):
         self.enemies = []
         # Bullets
         self.bullets = []
+        # Explosions
+        self.explosions = []
         self._init_map(map_data=mapData)
         # Add the object to be drawn
 
     def _init_map(self, map_data):
-        self.map = Map(map_data)
+        self.map = Map(self, map_data)
         self.add_to_screen(self.map)
-        self.castle = Castle()
+        self.castle = Castle(self)
         self.add_to_screen(self.castle)
         self.stats = StatBar()
         self.add_to_screen(self.stats)
@@ -34,6 +36,10 @@ class Level(object):
     def register_bullet(self, bullet):
         self.bullets.append(bullet)
         self.add_to_screen(bullet)
+
+    def register_explosion(self, ex):
+        self.explosions.append(ex)
+        self.add_to_screen(ex)
 
     def register_enemy(self, enemy):
         self.enemies.append(enemy)
@@ -68,6 +74,11 @@ class Level(object):
         for b in self.bullets:
             b.loop(time_passed)
         self.bullets = [b for b in self.bullets if not b.destroyed()]
+
+        # Loop explosions and clear destroyed
+        for e in self.explosions:
+            e.loop(time_passed)
+        self.explosions = [e for e in self.explosions if not e.destroyed()]
 
         # process server update
         self._process_server_msg()

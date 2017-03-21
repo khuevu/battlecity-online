@@ -1,6 +1,7 @@
 import image
 from model import Drawable, ActiveDrawable
 from model.bullet import Bullet
+from model.explosion import explode
 import pygame
 import message
 from util import currenttime_millis
@@ -104,17 +105,11 @@ class Tank(ActiveDrawable):
             # TODO: process other actions
             pass
 
-    #def explode(self):
-        #ex_center = self.rect.center
-        #ex_pos = (ex_center[0] - Explosion.SIZE_WIDTH / 2, ex_center[1] - Explosion.SIZE_HEIGHT / 2)
-        #ex = Explosion(ex_pos)
-        #ex.start()
-
     def hit(self, bullet):
         self.health -= bullet.power
         if self.health <= 0:
             self.destroy()
-            #self.explode()
+            self.level.register_explosion(explode(self))
 
 
 YELLOW_PLAYER, GREEN_PLAYER = 1, 2
