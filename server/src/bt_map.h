@@ -2,6 +2,9 @@
 #define INCLUDED_BT_MAP
 
 #include <iostream>
+#include <vector>
+#include <bt_model.h>
+
 
 namespace bt {
 
@@ -10,6 +13,8 @@ namespace bt {
  */
 class Map {
 public:
+
+    typedef std::pair<int, int> Cell;
     // map width and height
     static const int SIZE = 26; 
 
@@ -27,7 +32,7 @@ public:
      * @param[in]: col Horizontal position
      * @return: char reference to the value which describe the state of the terrain 
      */
-    char& state(int row, int col); 
+    char& state(int row, int col);
 
     /**
      * @brief: Load the map from input stream which should contains SIZExSIZE
@@ -39,6 +44,8 @@ public:
 private:
     // state storage
     char d_state[SIZE][SIZE];
+
+    std::vector<Cell> getOccupiedCells(const Model& model);
 
 }; 
 

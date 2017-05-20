@@ -19,4 +19,10 @@ void Map::load(std::istream& is) {
 }
 
 
+std::vector<Map::Cell> Map::getOccupiedCells(const Model &model) {
+    // Note1: Do not track bullet on server side. Use client side to resolve.
+
+}
+
+
 }

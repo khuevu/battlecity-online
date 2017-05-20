@@ -6,46 +6,48 @@
 namespace bt {
 
 /**
- * @brief: Utility Timer class to calculate time passed
+ * @brief: Utility Clock class to calculate time passed
  */
-class Timer {
-
-    using TimePoint = std::chrono::system_clock::time_point;
+class Clock {
 
 public:
+    typedef long long int Milliseconds;
+    typedef std::chrono::steady_clock::time_point TimePoint;
 
     /**
-     * @brief: Start the Timer
+     * @brief: Reset the last tick time of the clock
      */
-    void start(); 
+    void reset();
 
     /**
-     * @brief: Return the number of milliseconds since the 
-     * Timer is started. If this method is called before the start
-     * method is called, return the number of milliseconds since 
-     * the construct of the Timer object
+     * @brief: Return the number of milliseconds since the
+     * last Clock's tick. If this method is called the first time
+     * it return the number of milliseconds since
+     * the construct of the Clock object
      */
-    unsigned long stop(); 
+    Milliseconds tick();
 
-private: 
+private:
 
-    TimePoint d_startTime; 
+    TimePoint d_lastTickTime;
 
 };
 
-inline void Timer::start() {
-    d_startTime = std::chrono::system_clock::now(); 
+inline void Clock::reset() {
+    d_lastTickTime = std::chrono::steady_clock::now();
 }
 
-inline unsigned long Timer::stop() {
-    TimePoint end = std::chrono::system_clock::now(); 
-    return std::chrono::duration_cast<std::chrono::milliseconds>(end - d_startTime).count();
-} 
+inline Clock::Milliseconds Clock::tick() {
+    TimePoint t = std::chrono::steady_clock::now();
+    Milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t - d_lastTickTime).count();
+    d_lastTickTime = t;
+    return elapsed;
+}
 
-inline unsigned long currentTimeInMilliseconds() {
+inline Clock::Milliseconds currentTimeInMilliseconds() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
 }
 }
 
-#endif 
+#endif

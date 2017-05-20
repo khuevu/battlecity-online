@@ -83,12 +83,16 @@ void Server::runLevel(int levelNumber) {
     // initialize level container
     GameContainer container(levelNumber, d_players); 
     // start game loop
+//    auto lastTickTime = std::chrono::steady_clock::now();
+
     while (true) {
+//        auto currentTime = std::chrono::steady_clock::now();
+//        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTickTime).count();
         // read data from client sockets and store in player buffer to be
         // processed by the game logic
         receiveDataFromPlayers(); 
 
-        container.loop(); 
+        container.loop();
 
     }
 }

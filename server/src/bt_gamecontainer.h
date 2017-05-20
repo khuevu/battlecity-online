@@ -6,8 +6,8 @@
 #include <set>
 
 #include <bt_player.h>
+#include <bt_model.h>
 #include <bt_tank.h>
-#include <bt_process.h>
 #include <bt_map.h>
 #include <bt_util.h>
 
@@ -16,7 +16,7 @@ namespace bt {
 class GameContainer {
 public: 
     // friends
-    friend class Process; 
+    friend class EnemyTank; 
 
     const static std::string MAP_RESOURCE_PATH; 
 
@@ -28,7 +28,7 @@ public:
     GameContainer(int levelNumber, std::vector<Player>& players); 
     
     // run GameContainer 
-    bool loop(); 
+    bool loop();
 
     
 private: 
@@ -36,8 +36,6 @@ private:
     int d_id; 
     // players
     std::vector<Player>& d_players; 
-    // bullet list
-    // explosion list?
     // enemy tank list
     std::vector<EnemyTank> d_enemyTanks;
     // player tank list
@@ -45,8 +43,6 @@ private:
     // map 
     Map d_map; 
 
-    // process
-    // Process d_process;
     // game state
     enum State {
         NEW,
@@ -58,7 +54,7 @@ private:
     State d_state; 
 
     // utility timer
-    Timer d_timer;
+    Clock d_clock;
     unsigned long d_gameStartTime; 
 
     // ready state
@@ -84,17 +80,29 @@ private:
     // load map from file
     void loadMap(); 
     // send map to players
-    void sendMap(); 
+    void sendMap();
+
+    const Map& map() const;
     
-    // send state of a given tank to players;
-    //void sendTankStateUpdate(const Tank& target, int except=-1);
+    // create PlayerTanks 
     void createPlayerTanks();
 
     // get the player with given id
     Player& getPlayer(int playerId) const;
 
-    
+    // handler when enemy tank fire
+    void onEnemyTankFire(int tankId) const; 
+
+    // handler when enemy tank advance
+    void onEnemyTankAdvance(int tankId, double x, double y, Model::Direction d, bool moving) const;
+
 }; 
+
+
+inline const Map& GameContainer::map() const {
+    return d_map;
+}
+
 
 }
 #endif

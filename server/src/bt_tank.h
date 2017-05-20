@@ -2,6 +2,8 @@
 #define INCLUDED_BT_TANK
 
 #include <bt_model.h>
+#include <bt_util.h>
+
 
 namespace bt {
 
@@ -17,7 +19,9 @@ public:
         ITEM
     };
 
-    Tank(int id, double x, double y, Direction d = UP); 
+    Tank(int id, double x, double y,
+         double width, double height,
+         double speed, Direction d);
 
     int id() const {
         return d_id;
@@ -39,9 +43,18 @@ public:
         // in order to do validation
     }
 
-private: 
+protected: 
+
+    // tank id
     const int d_id;
+    // whether tank stops or moves
     bool d_stopped;
+    
+    int d_health; 
+    // tank's bullet power
+    int d_power; 
+    // tank's speed
+    int d_speed; 
 };
 
 
@@ -54,8 +67,6 @@ public:
 
     PlayerTank(int id, int playerId);
 
-    //virtual void move(double fromX, double fromY, int direction); 
-    
     int playerId() const {
         return d_playerId; 
     }
@@ -70,13 +81,29 @@ private:
 /**
  * @brief: AI controlled tank
  */
+class GameContainer;
+
 class EnemyTank : public Tank {
 
 public:
 
-    EnemyTank(int id, double x, double y, Direction d = UP);
+    EnemyTank(int id, double x, double y,
+              double speed, Direction d, const GameContainer& g);
 
-    //virtual void move(double fromX, double fromY, int direction); 
+    bool loop(Clock::Milliseconds elapsedTime);
+    
+private: 
+
+    const GameContainer& d_game; 
+    
+    // return true if there is no block on the destination. 
+    bool canAdvance(Position targetPosition) const;
+
+    // advance the tank 
+    void tryAdvance(Clock::Milliseconds elapsedTime);
+
+    // use weapon
+    void tryFire();
 
 };
 

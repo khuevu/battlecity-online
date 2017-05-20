@@ -25,7 +25,7 @@ bool GameContainer::loop() {
         // send creation of player tanks
         d_state = WAITING; // wait for player to be ready before starting the game
         // get timer going to to time the waiting time
-        d_timer.start(); 
+        d_clock.reset();
     }
 
     if (d_state == WAITING) {
@@ -34,7 +34,7 @@ bool GameContainer::loop() {
             std::cout << "All players has received map data and ready to start level" << std::endl; 
             // when the player are all ready
             // get the estimated time to communicate to both player (ms)
-            unsigned long comTime = d_timer.stop(); 
+            Clock::Milliseconds comTime = d_clock.tick();
             // level start time
             d_gameStartTime = comTime * 2 + currentTimeInMilliseconds(); 
             // set game to ready
@@ -55,12 +55,21 @@ bool GameContainer::loop() {
             d_state = RUNNING; 
             // create and send information about creating player tank
             createPlayerTanks();
+            // reset clock tick to go to game main loop
+            d_clock.reset();
         }
     }
     
     // game cycle
     if (d_state == RUNNING) {
-        // loop other game objects  
+        Clock::Milliseconds elapsedTime = d_clock.tick();
+        // update states of current enemy tanks
+        for (auto &enemy : d_enemyTanks) {
+            enemy.loop(elapsedTime);
+        }
+        // create enemy tanks 
+        
+        // gen reward item
     }
 
     // end game
@@ -100,7 +109,6 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
     // when player acknowledge that it has received map data
     if (msgId == MsgTypeLevelReady) {
         std::cout << "Player " << playerId << " received map" << std::endl;
-        // create new PlayerTank to join the game 
         d_responses.emplace(playerId);
     }
 
@@ -148,17 +156,6 @@ void GameContainer::sendMap() {
     send(MsgTypeLevelMapData, (char *)&mapDataMsg, sizeof(mapDataMsg)); 
 }
 
-//void GameContainer::sendTankStateUpdate(const Tank& target, int except) {
-    //// construct message
-    //MsgTankMove msgTankMove; 
-    //msgTankMove.tankId = target.id(); 
-    //msgTankMove.x = target.x(); 
-    //msgTankMove.y = target.y(); 
-    //msgTankMove.direction = target.direction(); 
-    //msgTankMove.action = target.
-
-    //send(MsgTypeTankMove, (char*) &msgTankMove, sizeof(msgTankMove), except); 
-//}
 
 void GameContainer::createPlayerTanks()
 {
@@ -175,6 +172,7 @@ void GameContainer::createPlayerTanks()
     }
 }
 
+
 Player& GameContainer::getPlayer(int playerId) const {
     for (Player& player : d_players) {
         if (player.id() == playerId) {
@@ -183,6 +181,16 @@ Player& GameContainer::getPlayer(int playerId) const {
     }
     
     throw std::runtime_error("Invalid player Id ");
+}
+
+
+void GameContainer::onEnemyTankFire(int tankId) const {
+    
+}
+
+
+void GameContainer::onEnemyTankAdvance(int tankId, double x, double y, Model::Direction d, bool moving) const {
+    
 }
 
 }
