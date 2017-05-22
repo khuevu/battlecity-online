@@ -58,7 +58,9 @@ private:
     unsigned long d_gameStartTime; 
 
     // ready state
-    std::set<int> d_responses; 
+    std::set<int> d_responses;
+
+
 
     /**
      * @brief: Send messages to players. Messages are put in the buffer queue
@@ -82,7 +84,7 @@ private:
     // send map to players
     void sendMap();
 
-    const Map& map() const;
+//    const Map& map() const;
     
     // create PlayerTanks 
     void createPlayerTanks();
@@ -94,14 +96,16 @@ private:
     void onEnemyTankFire(int tankId) const; 
 
     // handler when enemy tank advance
-    void onEnemyTankAdvance(int tankId, double x, double y, Model::Direction d, bool moving) const;
+    void onEnemyTankAdvance(int tankId) const;
 
+    // Create new enemy tank and it those to the list
+    void addNewEnemeyTank();
 }; 
 
 
-inline const Map& GameContainer::map() const {
-    return d_map;
-}
+//inline const Map& GameContainer::map() const {
+//    return d_map;
+//}
 
 
 }

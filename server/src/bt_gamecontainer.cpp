@@ -7,6 +7,10 @@
 
 namespace bt {
 
+namespace {
+    const int ENEMY_NUMBER = 10;
+}
+
 const std::string GameContainer::MAP_RESOURCE_PATH = "levels/"; 
 
 GameContainer::GameContainer(int levelNumber, std::vector<Player>& players) : 
@@ -67,9 +71,10 @@ bool GameContainer::loop() {
         for (auto &enemy : d_enemyTanks) {
             enemy.loop(elapsedTime);
         }
+
         // create enemy tanks 
-        
-        // gen reward item
+        addNewEnemeyTank();
+        //TODO: gen reward item
     }
 
     // end game
@@ -147,8 +152,8 @@ void GameContainer::loadMap() {
 
 void GameContainer::sendMap() {
     MsgMapData mapDataMsg;
-    for (int row = 0; row != Map::SIZE; ++row) {
-        for (int col = 0; col != Map::SIZE; ++col) {
+    for (int row = 0; row != Map::GRID_SIZE; ++row) {
+        for (int col = 0; col != Map::GRID_SIZE; ++col) {
             mapDataMsg.map[row][col] = d_map.state(row, col); 
         }
     }
@@ -164,7 +169,7 @@ void GameContainer::createPlayerTanks()
         d_playerTanks.emplace_back(player.position(), player.id());                          
         // send update to client
         MsgTankCreation msgTankCreate;
-        msgTankCreate.tankId = player.position(); 
+        msgTankCreate.tankId = player.position();
         msgTankCreate.direction = d_playerTanks.back().direction();
         msgTankCreate.x = d_playerTanks.back().x(); 
         msgTankCreate.y = d_playerTanks.back().y();
@@ -189,8 +194,32 @@ void GameContainer::onEnemyTankFire(int tankId) const {
 }
 
 
-void GameContainer::onEnemyTankAdvance(int tankId, double x, double y, Model::Direction d, bool moving) const {
+void GameContainer::onEnemyTankAdvance(int tankId) const {
     
 }
+
+void GameContainer::addNewEnemeyTank() {
+    // random the number of enemies going to be added, from 1 -> 3
+    int n = randInt(1, 3);
+    n = (ENEMY_NUMBER - d_enemyTanks.size()) >= n ? n : 0;
+
+    for (int i = 0; i != n; ++i) {
+        // random the type of tank
+        int enemyTankId = 3 + d_enemyTanks.size(); // offset
+        d_enemyTanks.push_back(EnemyTank(enemyTankId, 26 * 5, 100, ENEMY_BASIC, Model::DOWN, *this));
+        const EnemyTank& newTank = d_enemyTanks.back();
+        // send tank generate event
+        MsgTankCreation msgTankCreate;
+        msgTankCreate.tankId = newTank.id();
+        msgTankCreate.type = newTank.type();
+        msgTankCreate.direction = newTank.direction();
+        msgTankCreate.x = newTank.x();
+        msgTankCreate.y = newTank.y();
+        send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
+    }
+
+
+}
+
 
 }

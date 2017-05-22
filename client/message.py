@@ -38,13 +38,21 @@ class MsgLevelStart(object):
 
 class MsgTankCreation(object):
 
-    FORMAT = 'BBdd'
+    FORMAT = 'BBBddddd'
 
-    def __init__(self, tank_id, x, y, direction): 
+    def __init__(self, tank_id,
+                 type, direction,
+                 x, y,
+                 speed, health,
+                 power):
         self.id = tank_id
+        self.type = type
         self.direction = direction
         self.x = x
         self.y = y
+        self.speed = speed
+        self.health = health
+        self.power = power
 
 
 class MsgTankMovement(object): 
@@ -52,7 +60,7 @@ class MsgTankMovement(object):
     FORMAT = 'BBBdd'
 
     def __init__(self, tank_id, x, y, direction, moving):
-        self.id = tank_id 
+        self.id = tank_id
         self.direction = direction
         self.moving = moving
         self.x = x
@@ -88,8 +96,8 @@ def deserialize(msgType, msg):
         return MsgLevelStart(struct.unpack(MsgLevelStart.FORMAT, msg))
 
     elif msgType == TypeTankCreation:
-        tank_id, direction, x, y = struct.unpack(MsgTankCreation.FORMAT, msg)
-        return MsgTankCreation(tank_id, x, y, direction)
+        tank_id, type, direction, x, y, speed, health, power = struct.unpack(MsgTankCreation.FORMAT, msg)
+        return MsgTankCreation(tank_id, type, direction, x, y, speed, health, power)
 
     elif msgType == TypeTankMovement:
         tank_id, direction, moving, x, y = struct.unpack(MsgTankMovement.FORMAT, msg)

@@ -1,6 +1,6 @@
 from model.screen import GameScreen
 from model.map import Map, Castle
-from model.tank import PlayerTank, PartnerTank
+from model.tank import PlayerTank, PartnerTank, EnemyTank
 from model.stats import StatBar
 import message
 
@@ -116,8 +116,9 @@ class Level(object):
                 self.partner = PartnerTank(self, tank_id, data.x, data.y)
                 self.add_to_screen(self.partner)
         else: 
-            print "Create enemy tanks"
-            pass
+            print "Create enemy tanks of type %d" % data.type
+            enemy_tank = EnemyTank(self, tank_id, data.type, data.x, data.y)
+            self.register_enemy(enemy_tank)
 
     def _is_partner_id(self, tank_id):
         # Player tank and partner tank has id either 1 or 2

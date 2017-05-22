@@ -12,6 +12,8 @@ class Tank(ActiveDrawable):
     Z = 100
     SIZE = 26
     ACTION_FIRE, ACTION_EXPLODE, ACTION_ITEM = range(3)
+    TYPE_PLAYER_BASIC, TYPE_ENEMY_BASIC, \
+    TYPE_ENEMY_FAST, TYPE_ENEMY_POWER, TYPE_ENEMY_ARMOR = range(5)
 
     def __init__(self, level, tankId, x, y, images, speed, 
             health, power, direction=ActiveDrawable.DIR_UP, recharge_time=500):
@@ -211,3 +213,20 @@ class PlayerTank(Tank):
                 self.stopped = True
                 # send update that the tank is stopped
                 self._send_movement_update(moving=False)
+
+
+class EnemyTank(Tank):
+
+    TYPE_IMAGES = {
+        Tank.TYPE_ENEMY_BASIC: image.tank_enemy_imgs[0],
+        Tank.TYPE_ENEMY_FAST: image.tank_enemy_imgs[1],
+        Tank.TYPE_ENEMY_POWER: image.tank_enemy_imgs[2],
+        Tank.TYPE_ENEMY_ARMOR: image.tank_enemy_imgs[3]
+    }
+
+    def __init__(self, level, tank_id, tank_type, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        image_set = ActiveDrawable.construct_image_set(self.TYPE_IMAGES[tank_type])
+        Tank.__init__(self, level, tank_id, x, y, image_set, speed, health, power, direction)
+
+    def loop(self, time_passed):
+        pass

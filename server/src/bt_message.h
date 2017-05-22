@@ -27,7 +27,7 @@ struct MsgRequestGameStart {
 };
 
 struct MsgMapData {
-    char map[Map::SIZE][Map::SIZE]; 
+    char map[Map::GRID_SIZE][Map::GRID_SIZE];
 };
 
 struct MsgLevelStart {
@@ -35,10 +35,14 @@ struct MsgLevelStart {
 };
 
 struct MsgTankCreation {
-    unsigned char tankId; 
+    unsigned char tankId;
+    unsigned char type;
     unsigned char direction; 
     double x; 
     double y;
+    double speed;
+    double health;
+    double power;
 };
 
 // message data

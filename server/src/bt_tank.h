@@ -7,12 +7,30 @@
 
 namespace bt {
 
+struct TankStat {
+    TankStat(int type, double speed, double health, double power);
+    const int type;
+    const double speed;
+    const double health;
+    const double power;
+};
+
+static const TankStat PLAYER_BASIC(0, 0.08, 100, 100);
+static const TankStat ENEMY_BASIC(1, 0.08, 100, 100);
+static const TankStat ENEMY_FAST(2, 0.13, 100, 100);
+static const TankStat ENEMY_POWER(3, 0.08, 200, 100);
+static const TankStat ENEMY_ARMOR(4, 0.08, 100, 400);
+
+
 /**
  * @brief: Tank base class
  */
 class Tank : public Model {
 
-public: 
+public:
+
+    static const int TANK_SIZE = 26;
+
     enum Action {
         FIRE,
         EXPLODE,
@@ -20,11 +38,15 @@ public:
     };
 
     Tank(int id, double x, double y,
-         double width, double height,
-         double speed, Direction d);
+         TankStat stat, Direction d,
+         double width = TANK_SIZE, double height = TANK_SIZE);
 
     int id() const {
         return d_id;
+    }
+
+    int type() const {
+        return d_type;
     }
 
     void updateMovement(double fromX, double fromY, int direction, bool moving) {
@@ -54,7 +76,10 @@ protected:
     // tank's bullet power
     int d_power; 
     // tank's speed
-    int d_speed; 
+    int d_speed;
+
+    // tank type
+    int d_type;
 };
 
 
@@ -63,7 +88,8 @@ protected:
  */
 class PlayerTank : public Tank {
 
-public: 
+public:
+    static const TankStat STANDARD;
 
     PlayerTank(int id, int playerId);
 
@@ -88,7 +114,7 @@ class EnemyTank : public Tank {
 public:
 
     EnemyTank(int id, double x, double y,
-              double speed, Direction d, const GameContainer& g);
+              TankStat type, Direction d, const GameContainer& g);
 
     bool loop(Clock::Milliseconds elapsedTime);
     

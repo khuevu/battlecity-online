@@ -14,9 +14,30 @@ namespace bt {
 class Map {
 public:
 
-    typedef std::pair<int, int> Cell;
+    struct Cell {
+
+        Cell(char type, int row, int col) {
+            d_type = type;
+            d_row = row;
+            d_col = col;
+        }
+
+        char d_type;
+        int d_row;
+        int d_col;
+
+        bool blockOnGround() const {
+            if (d_type == '.') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    };
     // map width and height
-    static const int SIZE = 26; 
+    static const int CELL_SIZE = 16;
+    static const int GRID_SIZE = 26;
 
     /**
      * @brief: Get the state of the map at the specific position
@@ -39,14 +60,24 @@ public:
      * chars
      * @param[in]: is Input stream
      */
-    void load(std::istream& is); 
-     
+    void load(std::istream& is);
+
+    /**
+     * @brief: return true if the given area is free of obstacles
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @return
+     */
+    bool isFree(double x, double y, double width, double height) const;
+
+
 private:
     // state storage
-    char d_state[SIZE][SIZE];
+    char d_state[GRID_SIZE][GRID_SIZE];
 
-    std::vector<Cell> getOccupiedCells(const Model& model);
-
+    std::vector<Cell> getOccupiedCells(double x, double y, double width, double height) const;
 }; 
 
 inline char Map::state(int row, int col) const {

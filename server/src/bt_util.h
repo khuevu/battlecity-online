@@ -2,6 +2,7 @@
 #define INCLUDED_UTIL
 
 #include <chrono>
+#include <cstdlib>
 
 namespace bt {
 
@@ -48,6 +49,20 @@ inline Clock::Milliseconds currentTimeInMilliseconds() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
 }
+
+/**
+ * @brief: Generate random number between [0, 1]
+ * @return
+ */
+inline double random() {
+    return ((double) std::rand()) / RAND_MAX;
+}
+
+inline unsigned int randInt(unsigned int start, unsigned int end) {
+    return (unsigned int) (start + (end - start) * random());
+}
+
+
 }
 
 #endif
