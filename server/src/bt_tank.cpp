@@ -34,12 +34,20 @@ TankStat::TankStat(int type, double s, double health, double power) :
 
 
 // PLAYER TANK CLASS ---------------------------------
+
+const TankStat PlayerTank::STAT_BASIC = TankStat(0, 0.08, 100, 100);
+
 PlayerTank::PlayerTank(int id, int playerId) : 
     Tank(id, ((id == 1) ? 26 * 5 : 26 * 10), 300,
-         PLAYER_BASIC, UP), d_playerId(playerId) {
+         STAT_BASIC, UP), d_playerId(playerId) {
 }
 
 // ENEMY TANK CLASS ---------------------------------
+
+const TankStat EnemyTank::STAT_BASIC = TankStat(0, 0.08, 100, 100);
+const TankStat EnemyTank::STAT_FAST = TankStat(1, 0.13, 100, 100);
+const TankStat EnemyTank::STAT_POWER = TankStat(2, 0.08, 200, 100);
+const TankStat EnemyTank::STAT_ARMOR = TankStat(3, 0.08, 100, 400);
 
 EnemyTank::EnemyTank(int id, double x, double y,
                      TankStat stat, Direction d, const GameContainer& g) :

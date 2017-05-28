@@ -206,7 +206,7 @@ void GameContainer::addNewEnemeyTank() {
     for (int i = 0; i != n; ++i) {
         // random the type of tank
         int enemyTankId = 3 + d_enemyTanks.size(); // offset
-        d_enemyTanks.push_back(EnemyTank(enemyTankId, 26 * 5, 100, ENEMY_BASIC, Model::DOWN, *this));
+        d_enemyTanks.push_back(EnemyTank(enemyTankId, 26 * 5, 100, EnemyTank::STAT_BASIC, Model::DOWN, *this));
         const EnemyTank& newTank = d_enemyTanks.back();
         // send tank generate event
         MsgTankCreation msgTankCreate;

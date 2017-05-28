@@ -12,8 +12,6 @@ class Tank(ActiveDrawable):
     Z = 100
     SIZE = 26
     ACTION_FIRE, ACTION_EXPLODE, ACTION_ITEM = range(3)
-    TYPE_PLAYER_BASIC, TYPE_ENEMY_BASIC, \
-    TYPE_ENEMY_FAST, TYPE_ENEMY_POWER, TYPE_ENEMY_ARMOR = range(5)
 
     def __init__(self, level, tankId, x, y, images, speed, 
             health, power, direction=ActiveDrawable.DIR_UP, recharge_time=500):
@@ -124,7 +122,7 @@ def get_player_tank_images(position):
     return image_set
 
 
-class PartnerTank(Tank): 
+class PartnerTank(Tank):
 
     def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
         image_set = get_player_tank_images(play_position)
@@ -217,11 +215,13 @@ class PlayerTank(Tank):
 
 class EnemyTank(Tank):
 
+    TYPE_BASIC, TYPE_FAST, TYPE_POWER, TYPE_ARMOR = range(4)
+
     TYPE_IMAGES = {
-        Tank.TYPE_ENEMY_BASIC: image.tank_enemy_imgs[0],
-        Tank.TYPE_ENEMY_FAST: image.tank_enemy_imgs[1],
-        Tank.TYPE_ENEMY_POWER: image.tank_enemy_imgs[2],
-        Tank.TYPE_ENEMY_ARMOR: image.tank_enemy_imgs[3]
+        TYPE_BASIC: image.tank_enemy_imgs[0],
+        TYPE_FAST: image.tank_enemy_imgs[1],
+        TYPE_POWER: image.tank_enemy_imgs[2],
+        TYPE_ARMOR: image.tank_enemy_imgs[3]
     }
 
     def __init__(self, level, tank_id, tank_type, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):

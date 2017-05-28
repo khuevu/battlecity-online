@@ -15,11 +15,10 @@ struct TankStat {
     const double power;
 };
 
-static const TankStat PLAYER_BASIC(0, 0.08, 100, 100);
-static const TankStat ENEMY_BASIC(1, 0.08, 100, 100);
-static const TankStat ENEMY_FAST(2, 0.13, 100, 100);
-static const TankStat ENEMY_POWER(3, 0.08, 200, 100);
-static const TankStat ENEMY_ARMOR(4, 0.08, 100, 400);
+//static const TankStat ENEMY_BASIC(1, 0.08, 100, 100);
+//static const TankStat ENEMY_FAST(2, 0.13, 100, 100);
+//static const TankStat ENEMY_POWER(3, 0.08, 200, 100);
+//static const TankStat ENEMY_ARMOR(4, 0.08, 100, 400);
 
 
 /**
@@ -89,7 +88,7 @@ protected:
 class PlayerTank : public Tank {
 
 public:
-    static const TankStat STANDARD;
+    static const TankStat STAT_BASIC;
 
     PlayerTank(int id, int playerId);
 
@@ -112,6 +111,11 @@ class GameContainer;
 class EnemyTank : public Tank {
 
 public:
+
+    static const TankStat STAT_BASIC;
+    static const TankStat STAT_FAST;
+    static const TankStat STAT_POWER;
+    static const TankStat STAT_ARMOR;
 
     EnemyTank(int id, double x, double y,
               TankStat type, Direction d, const GameContainer& g);
