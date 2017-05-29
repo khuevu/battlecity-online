@@ -118,13 +118,13 @@ public:
     static const TankStat STAT_ARMOR;
 
     EnemyTank(int id, double x, double y,
-              TankStat type, Direction d, const GameContainer& g);
+              TankStat type, Direction d, GameContainer& g);
 
     bool loop(Clock::Milliseconds elapsedTime);
     
 private: 
 
-    const GameContainer& d_game; 
+    GameContainer& d_game;
     
     // return true if there is no block on the destination. 
     bool canAdvance(Position targetPosition) const;

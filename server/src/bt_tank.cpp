@@ -50,7 +50,7 @@ const TankStat EnemyTank::STAT_POWER = TankStat(2, 0.08, 200, 100);
 const TankStat EnemyTank::STAT_ARMOR = TankStat(3, 0.08, 100, 400);
 
 EnemyTank::EnemyTank(int id, double x, double y,
-                     TankStat stat, Direction d, const GameContainer& g) :
+                     TankStat stat, Direction d, GameContainer& g) :
     Tank(id, x, y, stat, d), d_game(g) {
 
 }
@@ -109,9 +109,10 @@ void EnemyTank::tryAdvance(Clock::Milliseconds elapsedTime) {
         d_direction = chooseRandomDirection(d_direction);
     }
 
+    std::cout << "Tank: " << this->id() << " can advance ? " << advanceable << std::endl;
     // send notification
     if (advanceable) {
-        d_game.onEnemyTankAdvance(this->id());
+        d_game.onEnemyTankAdvance(*this);
     }
 }
 

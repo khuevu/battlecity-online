@@ -14,17 +14,21 @@ namespace bt {
 class Map {
 public:
 
-    struct Cell {
+    class Cell {
+    public:
+        Cell(char type, int row, int col);
 
-        Cell(char type, int row, int col) {
-            d_type = type;
-            d_row = row;
-            d_col = col;
+        char type() const {
+            return d_type;
         }
 
-        char d_type;
-        int d_row;
-        int d_col;
+        int row() const {
+            return d_row;
+        }
+
+        int col() const {
+            return d_col;
+        }
 
         bool blockOnGround() const {
             if (d_type == '.') {
@@ -34,6 +38,10 @@ public:
                 return true;
             }
         }
+    private:
+        char d_type;
+        int d_row;
+        int d_col;
     };
     // map width and height
     static const int CELL_SIZE = 16;

@@ -93,10 +93,10 @@ private:
     Player& getPlayer(int playerId) const;
 
     // handler when enemy tank fire
-    void onEnemyTankFire(int tankId) const; 
+    void onEnemyTankFire(const Tank& tank);
 
     // handler when enemy tank advance
-    void onEnemyTankAdvance(int tankId) const;
+    void onEnemyTankAdvance(const Tank& tank);
 
     // Create new enemy tank and it those to the list
     void addNewEnemeyTank();

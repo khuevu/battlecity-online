@@ -8,7 +8,7 @@
 namespace bt {
 
 namespace {
-    const int ENEMY_NUMBER = 10;
+    const int ENEMY_NUMBER = 1;
 }
 
 const std::string GameContainer::MAP_RESOURCE_PATH = "levels/"; 
@@ -189,13 +189,20 @@ Player& GameContainer::getPlayer(int playerId) const {
 }
 
 
-void GameContainer::onEnemyTankFire(int tankId) const {
+void GameContainer::onEnemyTankFire(const Tank& tank) {
     
 }
 
 
-void GameContainer::onEnemyTankAdvance(int tankId) const {
-    
+void GameContainer::onEnemyTankAdvance(const Tank& tank) {
+    MsgTankMovement msgTankMovement;
+    msgTankMovement.tankId = tank.id();
+    msgTankMovement.direction = tank.direction();
+    // moving flag is not important for enemy tank as they will always move
+    msgTankMovement.moving = true;
+    msgTankMovement.x = tank.x();
+    msgTankMovement.y = tank.y();
+    send(MsgTypeTankMovement, (char *) &msgTankMovement, sizeof(msgTankMovement));
 }
 
 void GameContainer::addNewEnemeyTank() {
@@ -216,6 +223,7 @@ void GameContainer::addNewEnemeyTank() {
         msgTankCreate.x = newTank.x();
         msgTankCreate.y = newTank.y();
         send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
+
     }
 
 
