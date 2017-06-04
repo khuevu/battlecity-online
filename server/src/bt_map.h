@@ -81,6 +81,12 @@ public:
     bool isFree(double x, double y, double width, double height) const;
 
 
+    /**
+     * @brief: return true if the given area is within the map
+     */
+    bool isWithin(double x, double y, double width, double height) const;
+
+
 private:
     // state storage
     char d_state[GRID_SIZE][GRID_SIZE];

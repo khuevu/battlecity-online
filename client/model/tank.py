@@ -229,4 +229,5 @@ class EnemyTank(Tank):
         Tank.__init__(self, level, tank_id, x, y, image_set, speed, health, power, direction)
 
     def loop(self, time_passed):
-        pass
+        if not self.stopped:
+            self.move(self.direction, time_passed)

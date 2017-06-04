@@ -41,8 +41,8 @@ struct MsgTankCreation {
     double x; 
     double y;
     double speed;
-    double health;
-    double power;
+    int health;
+    int power;
 };
 
 // message data

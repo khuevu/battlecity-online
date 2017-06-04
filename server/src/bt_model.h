@@ -50,6 +50,10 @@ public:
         return d_direction;
     }
 
+    double speed() const {
+        return d_speed;
+    }
+
     Position getNextPosition(Clock::Milliseconds travelTime) const {
         double nextX = d_x;
         double nextY = d_y;
@@ -70,16 +74,14 @@ public:
         return std::pair<double, double>(nextX, nextY);
     }
 
-    bool overlap(const Model& other) const {
+    bool overlap(double ox1, double oy1, double owidth, double oheight) const {
         double x1 = d_x;
         double x2 = d_x + d_width;
         double y1 = d_y;
         double y2 = d_y + d_height;
 
-        double ox1 = other.x();
-        double ox2 = ox1 + other.width();
-        double oy1 = other.y();
-        double oy2 = oy1 + other.height();
+        double ox2 = ox1 + owidth;
+        double oy2 = oy1 + oheight;
 
         // if outside
         if ((x2 <= ox1 || x1 >= ox2) ||

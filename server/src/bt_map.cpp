@@ -52,4 +52,14 @@ bool Map::isFree(double x, double y, double width, double height) const {
 }
 
 
+bool Map::isWithin(double x, double y, double width, double height) const {
+    if (x < 0 || x + width > GRID_SIZE * CELL_SIZE) {
+        return false;
+    } else if (y < 0 || y + height > GRID_SIZE * CELL_SIZE) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 }

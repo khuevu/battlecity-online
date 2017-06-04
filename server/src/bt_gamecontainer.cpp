@@ -203,6 +203,7 @@ void GameContainer::onEnemyTankAdvance(const Tank& tank) {
     msgTankMovement.x = tank.x();
     msgTankMovement.y = tank.y();
     send(MsgTypeTankMovement, (char *) &msgTankMovement, sizeof(msgTankMovement));
+    std::cout << "Sent msg to update enemy tank movement of tank " << tank.id() << std::endl;
 }
 
 void GameContainer::addNewEnemeyTank() {
@@ -211,6 +212,7 @@ void GameContainer::addNewEnemeyTank() {
     n = (ENEMY_NUMBER - d_enemyTanks.size()) >= n ? n : 0;
 
     for (int i = 0; i != n; ++i) {
+
         // random the type of tank
         int enemyTankId = 3 + d_enemyTanks.size(); // offset
         d_enemyTanks.push_back(EnemyTank(enemyTankId, 26 * 5, 100, EnemyTank::STAT_BASIC, Model::DOWN, *this));
@@ -222,11 +224,14 @@ void GameContainer::addNewEnemeyTank() {
         msgTankCreate.direction = newTank.direction();
         msgTankCreate.x = newTank.x();
         msgTankCreate.y = newTank.y();
+        msgTankCreate.speed = newTank.speed();
+        msgTankCreate.health = newTank.health();
+        msgTankCreate.power = newTank.power();
         send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
 
+        std::cout << "Sent msg to create new enemy tank with id " << newTank.id() << std::endl;
+        onEnemyTankAdvance(newTank);
     }
-
-
 }
 
 

@@ -38,7 +38,7 @@ class MsgLevelStart(object):
 
 class MsgTankCreation(object):
 
-    FORMAT = 'BBBddddd'
+    FORMAT = 'BBBdddii'
 
     def __init__(self, tank_id,
                  type, direction,

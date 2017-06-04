@@ -130,9 +130,9 @@ class Level(object):
             self.partner.update_movement(data.x, data.y, data.direction, data.moving)
         else: 
             # Update enemy tank
-            print "Received update movement signal for "
             for enemy in self.enemies:
                 if enemy.id == data.id:
+                    # print "Received update movement signal for enemy tank ", enemy.id
                     enemy.update_movement(data.x, data.y, data.direction, data.moving)
 
     def _update_tank_action(self, data):

@@ -48,6 +48,14 @@ public:
         return d_type;
     }
 
+    int health() const {
+        return d_health;
+    }
+
+    int power() const {
+        return d_power;
+    }
+
     void updateMovement(double fromX, double fromY, int direction, bool moving) {
         d_x = fromX; 
         d_y = fromY; 
@@ -70,15 +78,12 @@ protected:
     const int d_id;
     // whether tank stops or moves
     bool d_stopped;
-    
-    int d_health; 
-    // tank's bullet power
-    int d_power; 
-    // tank's speed
-    int d_speed;
-
     // tank type
     int d_type;
+
+    int d_health;
+    // tank's bullet power
+    int d_power;
 };
 
 
@@ -127,13 +132,15 @@ private:
     GameContainer& d_game;
     
     // return true if there is no block on the destination. 
-    bool canAdvance(Position targetPosition) const;
+    bool canAdvance(Position targetPosition);
 
     // advance the tank 
     void tryAdvance(Clock::Milliseconds elapsedTime);
 
     // use weapon
     void tryFire();
+
+    int d_counter = 0;
 
 };
 

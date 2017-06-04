@@ -12,7 +12,7 @@ namespace bt {
 class Clock {
 
 public:
-    typedef long long int Milliseconds;
+    typedef double Milliseconds;
     typedef std::chrono::steady_clock::time_point TimePoint;
 
     /**
@@ -40,9 +40,12 @@ inline void Clock::reset() {
 
 inline Clock::Milliseconds Clock::tick() {
     TimePoint t = std::chrono::steady_clock::now();
-    Milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t - d_lastTickTime).count();
+
+    std::chrono::duration<double, std::milli> interval = (t - d_lastTickTime);
+
     d_lastTickTime = t;
-    return elapsed;
+
+    return interval.count();
 }
 
 inline Clock::Milliseconds currentTimeInMilliseconds() {
