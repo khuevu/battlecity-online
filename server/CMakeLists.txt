@@ -25,7 +25,7 @@ target_link_libraries (tank-server ${EXTRA_LIBS})
 set(GTEST_ROOT "/Users/khuevu/tools/googletest")
 enable_testing()
 add_subdirectory(${GTEST_ROOT} gtest/)
-add_executable(tank-test ${SOURCES} test/bt_tank.t.cpp test/bt_map.t.cpp)
+add_executable(tank-test ${SOURCES} test/bt_tank.t.cpp test/bt_map.t.cpp test/bt_model.t.cpp)
 target_link_libraries(tank-test gtest gtest_main)
 add_test(tank-test tank-test)
 
