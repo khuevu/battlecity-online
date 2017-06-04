@@ -121,6 +121,7 @@ public:
     static const TankStat STAT_FAST;
     static const TankStat STAT_POWER;
     static const TankStat STAT_ARMOR;
+    static const int REQUIRED_RELOAD_TIME = 1000; // mislliseconds
 
     EnemyTank(int id, double x, double y,
               TankStat type, Direction d, GameContainer& g);
@@ -138,10 +139,9 @@ private:
     void tryAdvance(Clock::Milliseconds elapsedTime);
 
     // use weapon
-    void tryFire();
+    void tryFire(Clock::Milliseconds elapsedTime);
 
-    int d_counter = 0;
-
+    Clock::Milliseconds d_reloadTime;
 };
 
 }

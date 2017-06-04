@@ -55,7 +55,7 @@ const TankStat EnemyTank::STAT_ARMOR = TankStat(3, 0.08, 100, 400);
 
 EnemyTank::EnemyTank(int id, double x, double y,
                      TankStat stat, Direction d, GameContainer& g) :
-    Tank(id, x, y, stat, d), d_game(g) {
+    Tank(id, x, y, stat, d), d_game(g), d_reloadTime(0) {
 
 }
 
@@ -67,7 +67,7 @@ bool EnemyTank::loop(Clock::Milliseconds elapsedTime) {
     tryAdvance(elapsedTime);
     
     // try shoot
-    tryFire();
+    tryFire(elapsedTime);
 
     return true;
 }
@@ -128,9 +128,15 @@ void EnemyTank::tryAdvance(Clock::Milliseconds elapsedTime) {
 }
 
 
-void EnemyTank::tryFire() {
+void EnemyTank::tryFire(Clock::Milliseconds elapsedTime) {
     // fire within a min-max delay range
+    d_reloadTime += elapsedTime;
 
+    if (d_reloadTime >= REQUIRED_RELOAD_TIME) {
+        // fire
+        d_game.onEnemyTankFire(*this);
+        d_reloadTime = 0;
+    }
 }
 
 

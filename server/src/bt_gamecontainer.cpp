@@ -190,7 +190,11 @@ Player& GameContainer::getPlayer(int playerId) const {
 
 
 void GameContainer::onEnemyTankFire(const Tank& tank) {
-    
+    MsgTankAction msgAction;
+    msgAction.tankId = tank.id();
+    msgAction.action = Tank::FIRE;
+    send(MsgTypeTankAction, (char*) &msgAction, sizeof(msgAction));
+    std::cout << "Sent msg to update enemy tank fire of tank " << tank.id() << std::endl;
 }
 
 

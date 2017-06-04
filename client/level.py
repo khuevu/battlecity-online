@@ -124,20 +124,22 @@ class Level(object):
         # Player tank and partner tank has id either 1 or 2
         return tank_id <= 2 and tank_id != self.playerPosition
 
+    def _get_tank_by_id(self, tank_id):
+        if self._is_partner_id(tank_id):
+            return self.partner
+        else:
+            for enemy in self.enemies:
+                if enemy.id == tank_id:
+                    return enemy
+        return None
+
     def _update_tank_movement(self, data):
         tank_id = data.id
-        if self._is_partner_id(tank_id): # Update partner tank.
-            self.partner.update_movement(data.x, data.y, data.direction, data.moving)
-        else: 
-            # Update enemy tank
-            for enemy in self.enemies:
-                if enemy.id == data.id:
-                    # print "Received update movement signal for enemy tank ", enemy.id
-                    enemy.update_movement(data.x, data.y, data.direction, data.moving)
+        tank = self._get_tank_by_id(tank_id)
+        tank.update_movement(data.x, data.y, data.direction, data.moving)
 
     def _update_tank_action(self, data):
         tank_id = data.id
-        if self._is_partner_id(tank_id):
-            self.partner.update_action(data.action)
-        else:
-            pass
+        tank = self._get_tank_by_id(tank_id)
+        tank.update_action(data.action)
+
