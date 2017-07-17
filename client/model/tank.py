@@ -105,11 +105,19 @@ class Tank(ActiveDrawable):
             # TODO: process other actions
             pass
 
+    def _send_explode_action(self):
+        server = self.level.server
+        tank_action = message.MsgTankAction(self.id, self.ACTION_EXPLODE)
+        server.send_message(message.TypeTankAction, tank_action)
+
     def hit(self, bullet):
         self.health -= bullet.power
         if self.health <= 0:
             self.destroy()
             self.level.register_explosion(explode(self))
+
+            # update server of tank destruction
+            self._send_explode_action()
 
 
 YELLOW_PLAYER, GREEN_PLAYER = 1, 2
@@ -156,9 +164,9 @@ class PlayerTank(Tank):
         print "Send update player tank position: [{}: {}-{} -> direcition: {}]".format(self.id, self.x, self.y, self.direction)
         server.send_message(message.TypeTankMovement, tank_movement)
 
-    def _send_action_update(self, action):
+    def _send_fire_action(self):
         server = self.level.server
-        tank_action = message.MsgTankAction(self.id, action)
+        tank_action = message.MsgTankAction(self.id, self.ACTION_FIRE)
         server.send_message(message.TypeTankAction, tank_action)
 
 
@@ -191,7 +199,7 @@ class PlayerTank(Tank):
         if self.firing_requested:
             fired = self.fire()
             if fired:
-                self._send_action_update(self.ACTION_FIRE)
+                self._send_fire_action()
             self.firing_requested = False
 
         # Move player tank along the requested directions

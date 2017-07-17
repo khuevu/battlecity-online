@@ -77,26 +77,21 @@ bool EnemyTank::canAdvance(Position targetPosition) {
 
     // check if the tank is inside the map
     if (!d_game.d_map.isWithin(targetPosition.first, targetPosition.second, d_width, d_height)) {
-//        std::cout << "Tank is out of map " << std::endl;
         return false;
     }
     // check if there are obstacle on the map
     if (!d_game.d_map.isFree(targetPosition.first, targetPosition.second, d_width, d_height)) {
-//        std::cout << "Tank is blocked by obstacle " << std::endl;
         return false;
     }
     // check if there are other tank obstacle
     for (auto& enemyTank : d_game.d_enemyTanks) {
         if (this->id() != enemyTank.id() && enemyTank.overlap(targetPosition.first, targetPosition.second, d_width, d_height)) {
-//            std::cout << "Tank is blocked by enemy  " << enemyTank.id() << std::endl;
             return false;
         }
     }
 
     for (auto &playerTank : d_game.d_playerTanks) {
         if (playerTank.overlap(targetPosition.first, targetPosition.second, d_width, d_height)) {
-//            std::cout << "Tank is blocked by player " << std::endl;
-//            std::cout << "Position: [" << d_x << ", " << d_y << "] - player pos [" << playerTank.x() << ", " << playerTank.y() << std::endl;
             return false;
         }
     }
@@ -111,9 +106,6 @@ void EnemyTank::tryAdvance(Clock::Milliseconds elapsedTime) {
     // if not, advance
     if (advanceable) {
         // update tank position
-//        std::cout << "Enemy Tank move from " << d_x << "," << d_y << " to  "
-//                  << nextPosition.first << "," << nextPosition.second << " in " << elapsedTime << std::endl;
-
         d_x = nextPosition.first;
         d_y = nextPosition.second;
 

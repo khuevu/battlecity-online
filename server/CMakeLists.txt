@@ -10,6 +10,7 @@ file(GLOB SOURCES src/bt_gamecontainer.cpp
         src/bt_tank.cpp
         src/bt_model.cpp
         src/bt_server.cpp
+        src/bt_consentbox.cpp
         src/bt_socket.cpp)
 
 add_executable(tank-server ${SOURCES} src/main.cpp)
@@ -25,7 +26,7 @@ target_link_libraries (tank-server ${EXTRA_LIBS})
 set(GTEST_ROOT "/Users/khuevu/tools/googletest")
 enable_testing()
 add_subdirectory(${GTEST_ROOT} gtest/)
-add_executable(tank-test ${SOURCES} test/bt_tank.t.cpp test/bt_map.t.cpp test/bt_model.t.cpp)
+add_executable(tank-test ${SOURCES} test/bt_tank.t.cpp test/bt_map.t.cpp test/bt_model.t.cpp test/bt_consentbox.t.cpp)
 target_link_libraries(tank-test gtest gtest_main)
 add_test(tank-test tank-test)
 

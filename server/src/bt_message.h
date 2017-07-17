@@ -18,23 +18,27 @@ enum MessageType {
     MsgTypeTankStateInfo
 };
 
-struct MsgConfig {
+class GameMessage {
+
+};
+
+struct MsgConfig : GameMessage {
     unsigned char position;
 };
 
-struct MsgRequestGameStart {
+struct MsgRequestGameStart : GameMessage {
     unsigned char levelNumber;
 };
 
-struct MsgMapData {
+struct MsgMapData : GameMessage {
     char map[Map::GRID_SIZE][Map::GRID_SIZE];
 };
 
-struct MsgLevelStart {
+struct MsgLevelStart : GameMessage {
     unsigned long startTime; 
 };
 
-struct MsgTankCreation {
+struct MsgTankCreation : GameMessage {
     unsigned char tankId;
     unsigned char type;
     unsigned char direction; 
@@ -46,7 +50,7 @@ struct MsgTankCreation {
 };
 
 // message data
-struct MsgTankMovement {
+struct MsgTankMovement : GameMessage {
     unsigned char tankId; 
     unsigned char direction;
     unsigned char moving;
@@ -54,11 +58,37 @@ struct MsgTankMovement {
     double y; 
 };
 
-struct MsgTankAction {
+struct MsgTankAction : GameMessage {
     unsigned char tankId;
     unsigned char action;
+
+    bool operator==(const MsgTankAction& other) const
+    {
+        return tankId == other.tankId && action == other.action;
+    }
 };
 
+
+//const GameMessage* getMsgFromData(unsigned char msgId, const char* msg) {
+//    switch (msgId) {
+//        case MsgTypeConfig:
+//            return (MsgConfig*) msg;
+//        case MsgTypeGameReady:
+//            return (GameMessage* ) msg;
+//        case MsgT
+//    }
+//
+//        MsgTypeConfig, // s->c, configuration information
+//                MsgTypeGameReady, // s->c, when two player joined
+//                MsgTypeRequestLevelStart, // c->s, when player request to start a level
+//                MsgTypeLevelMapData, // s->c, map data
+//                MsgTypeLevelReady, // c->s, after client has received map data
+//                MsgTypeLevelStart, // s->c, tell client it should start level
+//                MsgTypeTankCreation,
+//                MsgTypeTankMovement,
+//                MsgTypeTankAction,
+//                MsgTypeTankStateInfo
+//}
 
 
 }
