@@ -37,17 +37,23 @@ private:
     struct VoteComparator {
         bool operator() (const Vote& lv, const Vote& rv) const
         {
-            if (lv.msgId != rv.msgId || lv.msgLength != rv.msgLength)
+            if (lv.msgId != rv.msgId)
+            {
+                std::cout << "msgid or msglength doesn't match" << std::endl;
+                return lv.msgId < rv.msgId;
+            }
+            else if (lv.msgLength != rv.msgLength)
+            {
+                return lv.msgLength < rv.msgLength;
+            }
+            else if (!std::equal(lv.msgContent, lv.msgContent + lv.msgLength, rv.msgContent))
+            {
+                return lv.msgContent < rv.msgContent; // we don't really care about the inequality order here
+            }
+            else
             {
                 return false;
             }
-
-            if (!std::equal(lv.msgContent, lv.msgContent + lv.msgLength, rv.msgContent))
-            {
-                return false;
-            }
-
-            return true;
         }
     };
 
