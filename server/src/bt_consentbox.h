@@ -27,10 +27,10 @@ public:
 
 private:
 
-//    using Vote = std::pair<unsigned char, const char*>;
     struct Vote {
+        Vote(unsigned char id, const char* content, size_t length);
         unsigned char msgId;
-        char* msgContent;
+        const char* msgContent;
         size_t msgLength;
     };
 
@@ -62,7 +62,6 @@ private:
 
 
 };
-
 
 }
 #endif //INCLUDED_BT_CONSENTBOX

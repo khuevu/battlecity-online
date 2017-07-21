@@ -6,6 +6,11 @@ namespace {
     const int NUM_PLAYER = 2;
 }
 
+ConsentBox::Vote::Vote(unsigned char id, const char *content, size_t length)
+        : msgId(id), msgContent(content), msgLength(length)
+{
+
+}
 
 ConsentBox::~ConsentBox() {
     std::cout << "Calling consentbox destructor " << std::endl;
@@ -21,24 +26,18 @@ ConsentBox::~ConsentBox() {
 
 void ConsentBox::vote(int playerId, unsigned char msgId, const char *msg, size_t msgLength) {
     // store vote content
-    Vote vote;
-    std::cout << "vote message length " << msgLength << std::endl;
+    Vote vote(msgId, msg, msgLength);
 
-    vote.msgId = msgId;
-    vote.msgLength = msgLength;
-    vote.msgContent = new char[msgLength];
-    std::cout << "Allocate new content at " << static_cast<void*>(vote.msgContent) << std::endl;
-    std::copy(msg, msg + msgLength, vote.msgContent);
 
     auto res = d_votes.find(vote);
     if (res == d_votes.end())
     {
-        std::cout << "New vote " << std::endl;
-        res = d_votes.emplace(vote, std::vector<int>()).first;
+        // make a copy of vote and store it
+        char* msgCopy = new char[msgLength];
+        std::copy(msg, msg + msgLength, msgCopy);
+        res = d_votes.emplace(Vote(msgId, msgCopy, msgLength), std::vector<int>()).first;
     }
 
-    std::cout << "vote message length after insert " << res->first.msgLength << std::endl;
-    std::cout << "vote message content addr after insert " << static_cast<void*>(res->first.msgContent) << std::endl;
     res->second.push_back(playerId);
 }
 
@@ -51,10 +50,9 @@ unsigned char ConsentBox::getNextConsensus(char *msg) {
         {
             Vote consentVote = it->first;
             it = d_votes.erase(it);
-            std::cout << "consent vote message length " << consentVote.msgLength << std::endl;
+//            std::cout << "consent vote message length " << consentVote.msgLength << std::endl;
             std::copy(consentVote.msgContent, consentVote.msgContent + consentVote.msgLength, msg);
             // clean up vote content
-            std::cout << "To delete msg at " << static_cast<void*>(consentVote.msgContent) << std::endl;
             delete[] consentVote.msgContent;
 
             return consentVote.msgId;

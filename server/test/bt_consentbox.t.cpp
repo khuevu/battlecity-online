@@ -9,10 +9,7 @@ using namespace bt;
 
 TEST(ConsentBox, TwoConsentVotes_InOrder)
 {
-    char* original = new char[123];
-    char* copy = original;
-    std::cout << "Delete copy" << static_cast<void*>(original) << std::endl;
-//    delete[] copy;
+
     ConsentBox consentBox;
     MsgTankAction tankAction;
     tankAction.action = Tank::EXPLODE;
@@ -26,11 +23,10 @@ TEST(ConsentBox, TwoConsentVotes_InOrder)
 
     char msg[1024];
     auto msgId = consentBox.getNextConsensus(msg);
-//
+
     EXPECT_EQ(MsgTypeTankAction, msgId);
-    std::cout << "End of function " << std::endl;
-//    auto mta = *((MsgTankAction*) msg);
-//    EXPECT_EQ(tankAction, mta);
-    //EXPECT_EQ(tankAction2, *(MsgTankAction*) msg);
+//    auto mta = ;
+    EXPECT_EQ(tankAction, *(MsgTankAction*) msg);
+    EXPECT_EQ(tankAction2, *(MsgTankAction*) msg);
 
 }
