@@ -59,3 +59,23 @@ TEST(ConsentBox, TwoConsentVotes_OutOfOrder)
     EXPECT_EQ(tankAction2, *(MsgTankAction*) msg);
     EXPECT_FALSE(differentAction == *(MsgTankAction*) msg);
 }
+
+
+TEST(ConsentBox, TwoConsentVotes_LevelReady)
+{
+
+    ConsentBox consentBox;
+
+    consentBox.vote(0, MsgTypeLevelReady, NULL, 0);
+    MsgTankAction differentAction;
+    differentAction.action = Tank::ITEM;
+    differentAction.tankId = 20;
+    consentBox.vote(1, MsgTypeTankAction, (const char*) &differentAction, sizeof(differentAction));
+    consentBox.vote(1, MsgTypeLevelReady, NULL, 0);
+
+    char msg[1024];
+    auto msgId = consentBox.getNextConsensus(msg);
+
+    EXPECT_EQ(MsgTypeLevelReady, msgId);
+
+}
