@@ -59,8 +59,6 @@ private:
 
     using Votes = std::map<Vote, std::vector<int>, VoteComparator>;
     Votes d_votes;
-
-
 };
 
 }

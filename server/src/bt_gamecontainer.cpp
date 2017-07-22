@@ -16,10 +16,18 @@ const std::string GameContainer::MAP_RESOURCE_PATH = "levels/";
 GameContainer::GameContainer(int levelNumber, std::vector<Player>& players) : 
     d_id(levelNumber), d_players(players), 
     d_map(),
-    d_state(NEW) {
-        // load map data
-        loadMap();  
-    }
+    d_state(NEW),
+    d_msgBuffer(new char[1024])
+{
+    // load map data
+    loadMap();
+}
+
+
+GameContainer::~GameContainer()
+{
+    delete[] d_msgBuffer;
+}
 
 bool GameContainer::loop() {
     // first send the map to all player
@@ -34,7 +42,10 @@ bool GameContainer::loop() {
 
     if (d_state == WAITING) {
         // new tank constructed when player acked receipt of map 
-        if (d_responses.size() == 2) {
+        //if (d_responses.size() == 2) {
+        int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
+
+        if (msgId == MsgTypeLevelReady) {
             std::cout << "All players has received map data and ready to start level" << std::endl; 
             // when the player are all ready
             // get the estimated time to communicate to both player (ms)
@@ -49,7 +60,7 @@ bool GameContainer::loop() {
             std::cout << "Level should starts at " << d_gameStartTime << std::endl; 
             send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));  
             // clear responses tracker
-            d_responses.clear();
+            //d_responses.clear();
         } 
     }
 
@@ -114,7 +125,8 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
     // when player acknowledge that it has received map data
     if (msgId == MsgTypeLevelReady) {
         std::cout << "Player " << playerId << " received map" << std::endl;
-        d_responses.emplace(playerId);
+        //d_responses.emplace(playerId);
+        d_consentBox.vote(playerId, MsgTypeLevelReady, NULL, 0);
     }
 
     if (msgId == MsgTypeTankMovement) {

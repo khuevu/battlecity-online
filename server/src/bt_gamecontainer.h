@@ -10,6 +10,7 @@
 #include <bt_tank.h>
 #include <bt_map.h>
 #include <bt_util.h>
+#include "bt_consentbox.h"
 
 namespace bt {
 
@@ -25,8 +26,10 @@ public:
      * @param[in]: levelNumber Level information to load map data
      * @param[in]: players Players connection data
      */
-    GameContainer(int levelNumber, std::vector<Player>& players); 
-    
+    GameContainer(int levelNumber, std::vector<Player>& players);
+
+    ~GameContainer();
+
     // run GameContainer 
     bool loop();
 
@@ -60,7 +63,9 @@ private:
     // ready state
     std::set<int> d_responses;
 
+    ConsentBox d_consentBox;
 
+    char* d_msgBuffer;
 
     /**
      * @brief: Send messages to players. Messages are put in the buffer queue
