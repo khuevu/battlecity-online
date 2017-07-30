@@ -26,12 +26,13 @@ void ConsentBox::vote(int playerId, unsigned char msgId, const char *msg, size_t
     // store vote content
     Vote vote(msgId, msg, msgLength);
 
-
     auto res = d_votes.find(vote);
     if (res == d_votes.end())
     {
         // make a copy of vote and store it
         char* msgCopy = new char[msgLength];
+        // copy vote content
+        std::copy(msg, msg + msgLength, msgCopy);
         res = d_votes.emplace(Vote(msgId, msgCopy, msgLength), std::vector<int>()).first;
     }
 
@@ -47,6 +48,8 @@ unsigned char ConsentBox::getNextConsensus(char *msg) {
         {
             Vote consentVote = it->first;
             it = d_votes.erase(it);
+            // copy msg content to output
+            std::copy(consentVote.msgContent, consentVote.msgContent + consentVote.msgLength, msg);
             // clean up vote content
             delete[] consentVote.msgContent;
 
