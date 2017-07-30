@@ -60,9 +60,6 @@ private:
     Clock d_clock;
     unsigned long d_gameStartTime; 
 
-    // ready state
-    std::set<int> d_responses;
-
     ConsentBox d_consentBox;
 
     char* d_msgBuffer;

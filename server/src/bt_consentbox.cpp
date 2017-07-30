@@ -13,12 +13,10 @@ ConsentBox::Vote::Vote(unsigned char id, const char *content, size_t length)
 }
 
 ConsentBox::~ConsentBox() {
-    std::cout << "Calling consentbox destructor " << std::endl;
     for (auto& voteAndPlayers : d_votes)
     {
         auto& vote = voteAndPlayers.first;
         // clean up vote content
-        std::cout << "Delete vote in consent box" << std::endl;
         delete[] vote.msgContent;
     }
 }
@@ -34,7 +32,6 @@ void ConsentBox::vote(int playerId, unsigned char msgId, const char *msg, size_t
     {
         // make a copy of vote and store it
         char* msgCopy = new char[msgLength];
-        std::copy(msg, msg + msgLength, msgCopy);
         res = d_votes.emplace(Vote(msgId, msgCopy, msgLength), std::vector<int>()).first;
     }
 
@@ -50,8 +47,6 @@ unsigned char ConsentBox::getNextConsensus(char *msg) {
         {
             Vote consentVote = it->first;
             it = d_votes.erase(it);
-//            std::cout << "consent vote message length " << consentVote.msgLength << std::endl;
-            std::copy(consentVote.msgContent, consentVote.msgContent + consentVote.msgLength, msg);
             // clean up vote content
             delete[] consentVote.msgContent;
 
