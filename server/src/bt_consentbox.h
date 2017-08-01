@@ -23,7 +23,7 @@ public:
 
     void vote(int playerId, unsigned char msgId, const char* msg, size_t msgLength);
 
-    unsigned char getNextConsensus(char msg[]);
+    int getNextConsensus(char msg[]);
 
 private:
 

@@ -40,7 +40,7 @@ void ConsentBox::vote(int playerId, unsigned char msgId, const char *msg, size_t
 }
 
 
-unsigned char ConsentBox::getNextConsensus(char *msg) {
+int ConsentBox::getNextConsensus(char *msg) {
     // go through the message and compare
     for (Votes::iterator it = d_votes.begin(); it != d_votes.end();)
     {

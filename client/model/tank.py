@@ -40,7 +40,7 @@ class Tank(ActiveDrawable):
 
         # If collide with other tanks, can't move
         for tank in self.level.tanks:
-            if self != tank and tank.collide(next_pos):
+            if self != tank and not tank.destroyed() and tank.collide(next_pos):
                 return False
 
         # Else move the tank
@@ -100,12 +100,16 @@ class Tank(ActiveDrawable):
     def update_action(self, action):
         if action == self.ACTION_FIRE:
             self.fire()
-
+        elif action == self.ACTION_EXPLODE:
+            print "Update explode action from server for tank ", self.id
+            self.destroy()
+            self.level.register_explosion(explode(self))
         else:
             # TODO: process other actions
             pass
 
     def _send_explode_action(self):
+        print "Send tank explode action for tank ", self.id
         server = self.level.server
         tank_action = message.MsgTankAction(self.id, self.ACTION_EXPLODE)
         server.send_message(message.TypeTankAction, tank_action)
@@ -239,3 +243,11 @@ class EnemyTank(Tank):
     def loop(self, time_passed):
         if not self.stopped:
             self.move(self.direction, time_passed)
+
+    def hit(self, bullet):
+        self.health -= bullet.power
+        if self.health <= 0:
+            # self.destroy()
+            # self.level.register_explosion(explode(self))
+            # update server of tank destruction
+            self._send_explode_action()

@@ -61,7 +61,10 @@ EnemyTank::EnemyTank(int id, double x, double y,
 
 
 bool EnemyTank::loop(Clock::Milliseconds elapsedTime) {
-    
+    if (d_status == DESTROYED)
+    {
+        return false;
+    }
     // make advance
     //
     tryAdvance(elapsedTime);

@@ -36,6 +36,12 @@ public:
         ITEM
     };
 
+    enum Status {
+        ACTIVE,
+        FREEZED,
+        DESTROYED
+    };
+
     Tank(int id, double x, double y,
          TankStat stat, Direction d,
          double width = TANK_SIZE, double height = TANK_SIZE);
@@ -68,22 +74,27 @@ public:
     }
 
     void updateAction(Action action) {
-        //TODO: We might want to keep track of player action at the server-side
-        // in order to do validation
+        if (action == EXPLODE)
+        {
+            d_status = DESTROYED;
+        }
     }
 
 protected: 
 
     // tank id
     const int d_id;
-    // whether tank stops or moves
+
     bool d_stopped;
+
     // tank type
     int d_type;
 
     int d_health;
     // tank's bullet power
     int d_power;
+
+    Status d_status;
 };
 
 

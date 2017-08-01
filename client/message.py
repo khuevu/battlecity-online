@@ -104,5 +104,7 @@ def deserialize(msgType, msg):
         return MsgTankMovement(tank_id, x, y, direction, moving)
 
     elif msgType == TypeTankAction:
+        print "Msg length", len(msg)
+        print "Msg content", msg
         tank_id, action = struct.unpack(MsgTankAction.FORMAT, msg)
         return MsgTankAction(tank_id, action)

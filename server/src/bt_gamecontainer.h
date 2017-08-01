@@ -79,7 +79,11 @@ private:
     /**
      * @brief: Process message received from either of the player
      */
-    void processMsg(int playerId, unsigned char msgId, const char* msg); 
+    void processPlayerMsg(int playerId, unsigned char msgId, const char *msg);
+
+
+    void processConsensuses();
+
 
     // load map from file
     void loadMap(); 

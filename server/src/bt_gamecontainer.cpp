@@ -41,27 +41,27 @@ bool GameContainer::loop() {
     }
 
     if (d_state == WAITING) {
-        // new tank constructed when player acked receipt of map 
-        //if (d_responses.size() == 2) {
-        int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
-
-        if (msgId == MsgTypeLevelReady) {
-            std::cout << "All players has received map data and ready to start level" << std::endl; 
-            // when the player are all ready
-            // get the estimated time to communicate to both player (ms)
-            Clock::Milliseconds comTime = d_clock.tick();
-            // level start time
-            d_gameStartTime = comTime * 2 + currentTimeInMilliseconds(); 
-            // set game to ready
-            d_state = READY;
-            // send the game expected start time to client
-            MsgLevelStart msg; 
-            msg.startTime = d_gameStartTime; 
-            std::cout << "Level should starts at " << d_gameStartTime << std::endl; 
-            send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));  
-            // clear responses tracker
-            //d_responses.clear();
-        } 
+//        // new tank constructed when player acked receipt of map
+//        //if (d_responses.size() == 2) {
+//        int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
+//
+//        if (msgId == MsgTypeLevelReady) {
+//            std::cout << "All players has received map data and ready to start level" << std::endl;
+//            // when the player are all ready
+//            // get the estimated time to communicate to both player (ms)
+//            Clock::Milliseconds comTime = d_clock.tick();
+//            // level start time
+//            d_gameStartTime = comTime * 2 + currentTimeInMilliseconds();
+//            // set game to ready
+//            d_state = READY;
+//            // send the game expected start time to client
+//            MsgLevelStart msg;
+//            msg.startTime = d_gameStartTime;
+//            std::cout << "Level should starts at " << d_gameStartTime << std::endl;
+//            send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));
+//            // clear responses tracker
+//            //d_responses.clear();
+//        }
     }
 
     if (d_state == READY) {
@@ -93,7 +93,8 @@ bool GameContainer::loop() {
         return false; 
     }
 
-    readMsgsFromPlayers();  
+    readMsgsFromPlayers();
+    processConsensuses();
     return true; 
 }
 
@@ -113,19 +114,71 @@ void GameContainer::readMsgsFromPlayers() {
 
         Player::OpStatus rc = player.readNextMsgReceived(&msgId, msg); 
         if (rc == Player::SUCCESS) {
-            processMsg(player.id(), msgId, msg);  
+            processPlayerMsg(player.id(), msgId, msg);
         }
+    }
+
+    // process consent
+//    int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
+//    if (msgId != -1)
+//    {
+//        std::cout << "Sending a message from consent with msgId " << msgId << std::endl;
+//        const MsgTankAction* msgAction = (const MsgTankAction*) d_msgBuffer;
+//        // update tank action
+//        for (EnemyTank& tank : d_enemyTanks) {
+//            tank.updateAction(static_cast<Tank::Action >(msgAction->action));
+//        }
+//    }
+
+}
+
+
+void GameContainer::processConsensuses()
+{
+    // new tank constructed when player acked receipt of map
+    //if (d_responses.size() == 2) {
+    int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
+
+    if (msgId == MsgTypeLevelReady) {
+        std::cout << "All players has received map data and ready to start level" << std::endl;
+        // when the player are all ready
+        // get the estimated time to communicate to both player (ms)
+        Clock::Milliseconds comTime = d_clock.tick();
+        // level start time
+        d_gameStartTime = comTime * 2 + currentTimeInMilliseconds();
+        // set game to ready
+        d_state = READY;
+        // send the game expected start time to client
+        MsgLevelStart msg;
+        msg.startTime = d_gameStartTime;
+        std::cout << "Level should starts at " << d_gameStartTime << std::endl;
+        send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));
+        // clear responses tracker
+        //d_responses.clear();
+    }
+    else if (msgId == MsgTypeTankAction)
+    {
+        const MsgTankAction* msgAction = (const MsgTankAction*) d_msgBuffer;
+        // update tank action
+        for (EnemyTank& tank : d_enemyTanks) {
+            if (tank.id() == msgAction->tankId) {
+                tank.updateAction(static_cast<Tank::Action >(msgAction->action));
+            }
+        }
+
+        std::cout << "Sending a message from consent with msgId " << msgId << std::endl;
+        // send update to client
+        send(MsgTypeTankAction, (char*)msgAction, sizeof(*msgAction));
     }
 }
 
 
-void GameContainer::processMsg(int playerId, unsigned char msgId, const char* msg) {
+void GameContainer::processPlayerMsg(int playerId, unsigned char msgId, const char *msg) {
     std::cout << "Process msg " << msgId << " from player " << playerId << std::endl; 
 
     // when player acknowledge that it has received map data
     if (msgId == MsgTypeLevelReady) {
         std::cout << "Player " << playerId << " received map" << std::endl;
-        //d_responses.emplace(playerId);
         d_consentBox.vote(playerId, MsgTypeLevelReady, NULL, 0);
     }
 
@@ -144,12 +197,22 @@ void GameContainer::processMsg(int playerId, unsigned char msgId, const char* ms
 
     if (msgId == MsgTypeTankAction) {
         const MsgTankAction* msgAction = (const MsgTankAction*) msg;
+
         std::cout << "Tank " << msgAction->tankId << " action: " << msgAction->action << std::endl;
-        for (PlayerTank& tank : d_playerTanks) {
-            if (tank.id() == msgAction->tankId) {
-                tank.updateAction(static_cast<Tank::Action >(msgAction->action));
-                send(MsgTypeTankAction, (char*) msgAction, sizeof(*msgAction), tank.playerId());
+        // if action only concens player
+        if (msgAction->tankId <= 2) {
+            for (PlayerTank& tank : d_playerTanks) {
+                if (tank.id() == msgAction->tankId) {
+                    tank.updateAction(static_cast<Tank::Action >(msgAction->action));
+                    send(MsgTypeTankAction, (char*) msgAction, sizeof(*msgAction), tank.playerId());
+                }
             }
+        }
+        else {
+            // if action concerns enemies, put it to consentbox
+            std::cout << "Player " << playerId << " vote for action " << msgAction->action << " for tank "
+                      << msgAction->tankId << std::endl;
+            d_consentBox.vote(playerId, msgId, msg, sizeof(*msgAction));
         }
     }
 }

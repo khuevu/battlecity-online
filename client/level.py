@@ -48,8 +48,8 @@ class Level(object):
     @property
     def tanks(self):
         all_tanks = []
-        if self.player: all_tanks.append(self.player)
-        if self.partner: all_tanks.append(self.partner)
+        if self.player and not self.player.destroyed(): all_tanks.append(self.player)
+        if self.partner and not self.partner.destroyed(): all_tanks.append(self.partner)
         all_tanks.extend(self.enemies)
         return all_tanks
 
