@@ -51,7 +51,7 @@ class Server(object):
     def _extract_buffered_messages(self): 
         i = 0
         headerSize = struct.calcsize('IB')
-        while i < len(self.buffer): 
+        while i + headerSize <= len(self.buffer):
             # read message length and type
             length, msgType = struct.unpack('IB', self.buffer[i : i + headerSize])
             # check if the complete msg has been received

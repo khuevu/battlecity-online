@@ -8,7 +8,7 @@
 namespace bt {
 
 namespace {
-    const int ENEMY_NUMBER = 1;
+    const int ENEMY_NUMBER = 2;
 }
 
 const std::string GameContainer::MAP_RESOURCE_PATH = "levels/"; 
@@ -40,29 +40,6 @@ bool GameContainer::loop() {
         d_clock.reset();
     }
 
-    if (d_state == WAITING) {
-//        // new tank constructed when player acked receipt of map
-//        //if (d_responses.size() == 2) {
-//        int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
-//
-//        if (msgId == MsgTypeLevelReady) {
-//            std::cout << "All players has received map data and ready to start level" << std::endl;
-//            // when the player are all ready
-//            // get the estimated time to communicate to both player (ms)
-//            Clock::Milliseconds comTime = d_clock.tick();
-//            // level start time
-//            d_gameStartTime = comTime * 2 + currentTimeInMilliseconds();
-//            // set game to ready
-//            d_state = READY;
-//            // send the game expected start time to client
-//            MsgLevelStart msg;
-//            msg.startTime = d_gameStartTime;
-//            std::cout << "Level should starts at " << d_gameStartTime << std::endl;
-//            send(MsgTypeLevelStart, (char*) &msg, sizeof(msg));
-//            // clear responses tracker
-//            //d_responses.clear();
-//        }
-    }
 
     if (d_state == READY) {
         if (currentTimeInMilliseconds() >= d_gameStartTime) {
@@ -117,18 +94,6 @@ void GameContainer::readMsgsFromPlayers() {
             processPlayerMsg(player.id(), msgId, msg);
         }
     }
-
-    // process consent
-//    int msgId = d_consentBox.getNextConsensus(d_msgBuffer);
-//    if (msgId != -1)
-//    {
-//        std::cout << "Sending a message from consent with msgId " << msgId << std::endl;
-//        const MsgTankAction* msgAction = (const MsgTankAction*) d_msgBuffer;
-//        // update tank action
-//        for (EnemyTank& tank : d_enemyTanks) {
-//            tank.updateAction(static_cast<Tank::Action >(msgAction->action));
-//        }
-//    }
 
 }
 
@@ -309,7 +274,7 @@ void GameContainer::addNewEnemeyTank() {
         send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
 
         std::cout << "Sent msg to create new enemy tank with id " << newTank.id() << std::endl;
-        onEnemyTankAdvance(newTank);
+        //onEnemyTankAdvance(newTank);
     }
 }
 
