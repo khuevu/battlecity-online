@@ -4,6 +4,8 @@
 #include <bt_message.h>
 #include <bt_gamecontainer.h>
 #include <bt_tank.h>
+#include <bt_util.h>
+
 
 namespace bt {
 
@@ -251,15 +253,29 @@ void GameContainer::onEnemyTankAdvance(const Tank& tank) {
 }
 
 void GameContainer::addNewEnemeyTank() {
+    if (d_enemyTanks.size() == ENEMY_NUMBER)
+    {
+        // Do not generate new tank if the number of tanks meet the limit
+        return;
+    }
+
     // random the number of enemies going to be added, from 1 -> 3
     int n = randInt(1, 3);
     n = (ENEMY_NUMBER - d_enemyTanks.size()) >= n ? n : 0;
 
     for (int i = 0; i != n; ++i) {
+        // find the possible position of the tank
+        double spawnX, spawnY;
+        bool found = findSpawningPosition(&spawnX, &spawnY);
+        if (!found)
+        {
+            // Skip this round of generate enemy tank if the position to generate the tank not found
+            continue;
+        }
 
         // random the type of tank
         int enemyTankId = 3 + d_enemyTanks.size(); // offset
-        d_enemyTanks.push_back(EnemyTank(enemyTankId, 26 * 5, 100, EnemyTank::STAT_BASIC, Model::DOWN, *this));
+        d_enemyTanks.push_back(EnemyTank(enemyTankId, spawnX, spawnY, EnemyTank::STAT_BASIC, Model::DOWN, *this));
         const EnemyTank& newTank = d_enemyTanks.back();
         // send tank generate event
         MsgTankCreation msgTankCreate;
@@ -274,9 +290,46 @@ void GameContainer::addNewEnemeyTank() {
         send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
 
         std::cout << "Sent msg to create new enemy tank with id " << newTank.id() << std::endl;
-        //onEnemyTankAdvance(newTank);
+        onEnemyTankAdvance(newTank);
     }
 }
+
+
+bool GameContainer::findSpawningPosition(double* x, double* y)
+{
+    // get free position on the map within the upper half of the map
+    double possibleX = randInt(0, d_map.GRID_SIZE / 2) * d_map.CELL_SIZE * 2;
+    double possibleY = randInt(0, d_map.GRID_SIZE / 4) * d_map.CELL_SIZE * 2;
+
+    // check if the position is occupied
+    if (!d_map.isWithin(possibleX, possibleY, EnemyTank::TANK_SIZE,  EnemyTank::TANK_SIZE)) {
+        return false;
+    }
+    // check if there are obstacle on the map
+    if (!d_map.isFree(possibleX, possibleY,  EnemyTank::TANK_SIZE,  EnemyTank::TANK_SIZE)) {
+        return false;
+    }
+
+    // check if there are other tank obstacle
+    for (auto& enemyTank : d_enemyTanks) {
+        if (enemyTank.overlap(possibleX, possibleY, EnemyTank::TANK_SIZE, EnemyTank::TANK_SIZE)) {
+            return false;
+        }
+    }
+
+    for (auto &playerTank : d_playerTanks) {
+        if (playerTank.overlap(possibleX, possibleY, EnemyTank::TANK_SIZE, EnemyTank::TANK_SIZE)) {
+            return false;
+        }
+    }
+
+    *x = possibleX;
+    *y = possibleY;
+    return true;
+}
+
+
+
 
 
 }

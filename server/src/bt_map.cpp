@@ -37,13 +37,10 @@ std::vector<Map::Cell> Map::getOccupiedCells(double x, double y, double width, d
 }
 
 bool Map::isFree(double x, double y, double width, double height) const {
-//    std::cout << "Checking occupation of RECT [" << x << " - " << y << ", " << width << " " << height << "]" << std::endl;
     auto cells = getOccupiedCells(x, y, width, height);
 
     for (auto& cell : cells) {
-//        std::cout << "Occupy cell " << cell.row() << " - " << cell.col() << std::endl;
         if (cell.blockOnGround()) {
-//            std::cout << "Blocked" << std::endl;
             return false;
         }
     }

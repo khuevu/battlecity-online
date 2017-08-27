@@ -90,8 +90,6 @@ private:
     // send map to players
     void sendMap();
 
-//    const Map& map() const;
-    
     // create PlayerTanks 
     void createPlayerTanks();
 
@@ -106,6 +104,9 @@ private:
 
     // Create new enemy tank and it those to the list
     void addNewEnemeyTank();
+
+    // Get position to generate enemy tank
+    bool findSpawningPosition(double* x, double* y);
 }; 
 
 

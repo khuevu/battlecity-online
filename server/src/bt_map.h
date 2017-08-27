@@ -92,6 +92,7 @@ private:
     char d_state[GRID_SIZE][GRID_SIZE];
 
     std::vector<Cell> getOccupiedCells(double x, double y, double width, double height) const;
+
 }; 
 
 inline char Map::state(int row, int col) const {
