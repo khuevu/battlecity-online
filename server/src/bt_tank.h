@@ -132,7 +132,10 @@ public:
     static const TankStat STAT_FAST;
     static const TankStat STAT_POWER;
     static const TankStat STAT_ARMOR;
+    // time before tank can fire again
     static const int REQUIRED_RELOAD_TIME = 1000; // mislliseconds
+    // time before tank can start moving
+    static const int REQUIRED_SPAWN_TIME = 4000;
 
     EnemyTank(int id, double x, double y,
               TankStat type, Direction d, GameContainer& g);
@@ -153,6 +156,10 @@ private:
     void tryFire(Clock::Milliseconds elapsedTime);
 
     Clock::Milliseconds d_reloadTime;
+
+    Clock::Milliseconds d_spawnTime;
+
+    bool d_spawning;
 };
 
 }

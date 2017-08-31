@@ -174,7 +174,7 @@ class PlayerTank(Tank):
         server.send_message(message.TypeTankAction, tank_action)
 
 
-    def loop(self, time_passed): 
+    def loop(self, time_passed):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -199,6 +199,9 @@ class PlayerTank(Tank):
                     self.direction_requested.remove(self.DIR_DOWN)
                 elif event.key == pygame.K_LEFT:
                     self.direction_requested.remove(self.DIR_LEFT)
+
+        if self.destroyed():
+            return
 
         if self.firing_requested:
             fired = self.fire()

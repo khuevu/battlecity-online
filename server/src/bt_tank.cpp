@@ -55,12 +55,29 @@ const TankStat EnemyTank::STAT_ARMOR = TankStat(3, 0.08, 100, 400);
 
 EnemyTank::EnemyTank(int id, double x, double y,
                      TankStat stat, Direction d, GameContainer& g) :
-    Tank(id, x, y, stat, d), d_game(g), d_reloadTime(0) {
+    Tank(id, x, y, stat, d),
+    d_game(g),
+    d_reloadTime(0),
+    d_spawnTime(0),
+    d_spawning(true)
+{
 
 }
 
 
 bool EnemyTank::loop(Clock::Milliseconds elapsedTime) {
+    if (d_spawnTime < REQUIRED_SPAWN_TIME)
+    {
+        d_spawnTime += elapsedTime;
+        return true;
+    }
+    else if (d_spawning)
+    {
+        // send update of tank movement for the first time after spawining
+        d_game.onEnemyTankAdvance(*this);
+        d_spawning = false;
+    }
+
     if (d_status == DESTROYED)
     {
         return false;

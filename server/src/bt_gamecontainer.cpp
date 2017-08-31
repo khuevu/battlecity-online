@@ -287,10 +287,11 @@ void GameContainer::addNewEnemeyTank() {
         msgTankCreate.speed = newTank.speed();
         msgTankCreate.health = newTank.health();
         msgTankCreate.power = newTank.power();
-        send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
 
         std::cout << "Sent msg to create new enemy tank with id " << newTank.id() << std::endl;
-        onEnemyTankAdvance(newTank);
+        send(MsgTypeTankCreation, (char*) &msgTankCreate, sizeof(msgTankCreate));
+
+        //onEnemyTankAdvance(newTank);
     }
 }
 
