@@ -151,6 +151,25 @@ class PartnerTank(Tank):
             self.move(self.direction, time_passed)
 
 
+class InvincibleCloak(Drawable):
+
+    Z = 150
+    SIZE = 32
+    FRAME_DUR = 90
+    LIFE_TIME = 20 * 1000
+
+    def __init__(self, x, y):
+        self.duration = 0
+        Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), image.invincible_cloak_imgs[0])
+
+    def loop(self, time_passed):
+        self.duration += time_passed
+        state = self.duration / self.FRAME_DUR % 2 # only change state after ANIM_FRAME_DUR
+        self.image = image.invincible_cloak_imgs[state]
+        if self.duration > self.LIFE_TIME:
+            self.destroy()
+
+
 class PlayerTank(Tank): 
 
     def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
@@ -161,6 +180,14 @@ class PlayerTank(Tank):
         # control parameters
         self.direction_requested = []
         self.firing_requested = False
+        self.cloak_on()
+
+    def cloak_on(self):
+        self.cloak = InvincibleCloak(self.x, self.y)
+        self.level.scrn.add(self.cloak)
+
+    def is_cloaked(self):
+        return self.cloak and not self.cloak.destroyed()
 
     def _send_movement_update(self, moving):
         server = self.level.server
@@ -172,7 +199,6 @@ class PlayerTank(Tank):
         server = self.level.server
         tank_action = message.MsgTankAction(self.id, self.ACTION_FIRE)
         server.send_message(message.TypeTankAction, tank_action)
-
 
     def loop(self, time_passed):
         for event in pygame.event.get():
@@ -227,6 +253,11 @@ class PlayerTank(Tank):
                 # send update that the tank is stopped
                 self._send_movement_update(moving=False)
 
+        if self.is_cloaked():
+            self.cloak.x = self.x
+            self.cloak.y = self.y
+            self.cloak.loop(time_passed)
+
 
 class SpawningLight(Drawable):
 
@@ -236,12 +267,12 @@ class SpawningLight(Drawable):
 
     def __init__(self, x, y):
         self.duration = 0
-        Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), image.spawning_lights[0])
+        Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), image.spawning_light_imgs[0])
 
     def loop(self, time_passed):
         self.duration += time_passed
         state = self.duration / self.FRAME_DUR % 2 # only change state after ANIM_FRAME_DUR
-        self.image = image.spawning_lights[state]
+        self.image = image.spawning_light_imgs[state]
 
 
 class EnemyTank(Tank):

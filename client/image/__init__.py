@@ -25,14 +25,16 @@ tank_enemy_with_bonus_imgs = [
     ]
 
 # Spawning Lights
-spawning_lights = [
+spawning_light_imgs = [
     sprites.subsurface(64, 96, 32, 32),
     sprites.subsurface(96, 96, 32, 32)
     ]
 
 # Player Cloak
-player_cloak1_img = sprites.subsurface(0, 96, 32, 32)
-player_cloak2_img = sprites.subsurface(32, 96, 32, 32)
+invincible_cloak_imgs = [
+    sprites.subsurface(0, 96, 32, 32),
+    sprites.subsurface(32, 96, 32, 32)
+]
 
 # Side Bar
 tank_icon_enemy = sprites.subsurface(160, 112, 16, 16)
