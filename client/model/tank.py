@@ -228,6 +228,22 @@ class PlayerTank(Tank):
                 self._send_movement_update(moving=False)
 
 
+class SpawningLight(Drawable):
+
+    Z = 150
+    SIZE = 32
+    FRAME_DUR = 90
+
+    def __init__(self, x, y):
+        self.duration = 0
+        Drawable.__init__(self, pygame.Rect((x, y), (self.SIZE, self.SIZE)), image.spawning_lights[0])
+
+    def loop(self, time_passed):
+        self.duration += time_passed
+        state = self.duration / self.FRAME_DUR % 2 # only change state after ANIM_FRAME_DUR
+        self.image = image.spawning_lights[state]
+
+
 class EnemyTank(Tank):
 
     TYPE_BASIC, TYPE_FAST, TYPE_POWER, TYPE_ARMOR = range(4)
@@ -239,13 +255,36 @@ class EnemyTank(Tank):
         TYPE_ARMOR: image.tank_enemy_imgs[3]
     }
 
+    def _spawn(self):
+        # Hide the tank when it is spawning
+        self.hide()
+        # Display the spawning light
+        self.spawn_light = SpawningLight(self.x, self.y)
+        self.level.scrn.add(self.spawn_light)
+
+    def is_spawning(self):
+        return self.spawn_light and not self.spawn_light.destroyed()
+
     def __init__(self, level, tank_id, tank_type, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
         image_set = ActiveDrawable.construct_image_set(self.TYPE_IMAGES[tank_type])
         Tank.__init__(self, level, tank_id, x, y, image_set, speed, health, power, direction)
+        self._spawn()
 
     def loop(self, time_passed):
-        if not self.stopped:
+        if self.is_spawning():
+            self.spawn_light.loop(time_passed)
+
+        elif not self.stopped:
             self.move(self.direction, time_passed)
+
+    def update_movement(self, x, y, direction, moving):
+        if self.is_spawning():
+            # Activate tank and remove the spawning light
+            self.spawn_light.destroy()
+            self.spawn_light = None
+            self.activate()
+
+        Tank.update_movement(self, x, y, direction, moving)
 
     def hit(self, bullet):
         self.health -= bullet.power

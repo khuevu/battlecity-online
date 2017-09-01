@@ -13,7 +13,7 @@ class Drawable(object):
     """
 
     Z = 0 
-    S_ACTIVE, S_DESTROYED = range(2)
+    S_ACTIVE, S_DESTROYED, S_HIDDEN = range(3)
 
     def __init__(self, rect, image): 
         """ Initialize the Drawable rectangle area
@@ -31,11 +31,17 @@ class Drawable(object):
         if self.state == self.S_ACTIVE:
             screen.blit(self.image, self.rect)
 
+    def activate(self):
+        self.state = self.S_ACTIVE
+
     def destroy(self): 
         self.state = self.S_DESTROYED
 
     def destroyed(self):
         return self.state == self.S_DESTROYED
+
+    def hide(self):
+        self.state = self.S_HIDDEN
 
     @property
     def x(self): 

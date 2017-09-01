@@ -98,9 +98,9 @@ class GameScreen(object):
         # the OrderedSequence container so that the lower objects
         # are drawn first. 
         for node in self.drawableSeq: 
-            if node.elem.state == Drawable.S_ACTIVE: 
+            if node.elem.state == Drawable.S_ACTIVE:
                 node.elem.draw(self.display)
-            else: 
+            elif node.elem.state == Drawable.S_DESTROYED:
                 self.drawableSeq.remove(node)
         pygame.display.flip()
 

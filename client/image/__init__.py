@@ -24,9 +24,11 @@ tank_enemy_with_bonus_imgs = [
     sprites.subsurface(80*2, 16*2, 13*2, 15*2)
     ]
 
-# Enemy Placeholder
-enemy_placeholder1_img = sprites.subsurface(64, 96, 32, 32)
-enemy_placeholder2_img = sprites.subsurface(96, 96, 32, 32)
+# Spawning Lights
+spawning_lights = [
+    sprites.subsurface(64, 96, 32, 32),
+    sprites.subsurface(96, 96, 32, 32)
+    ]
 
 # Player Cloak
 player_cloak1_img = sprites.subsurface(0, 96, 32, 32)
