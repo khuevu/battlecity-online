@@ -34,6 +34,9 @@ class Drawable(object):
     def activate(self):
         self.state = self.S_ACTIVE
 
+    def visible(self):
+        return self.state == self.S_ACTIVE
+
     def destroy(self): 
         self.state = self.S_DESTROYED
 

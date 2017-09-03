@@ -26,6 +26,9 @@ class Tank(ActiveDrawable):
         self.recharge_time = recharge_time
         self.last_fired = 0
 
+        # cloak
+        self.cloak = None
+
     def move(self, direction, time_passed):
         self.rotate(direction) 
         # Check if the next position in the current direction will lead to collisions
@@ -115,6 +118,10 @@ class Tank(ActiveDrawable):
         server.send_message(message.TypeTankAction, tank_action)
 
     def hit(self, bullet):
+        if self.is_cloaked():
+            # When a tank is cloaked, it is not hitable.
+            return
+
         self.health -= bullet.power
         if self.health <= 0:
             self.destroy()
@@ -122,6 +129,20 @@ class Tank(ActiveDrawable):
 
             # update server of tank destruction
             self._send_explode_action()
+
+    def cloak_on(self):
+        self.cloak = InvincibleCloak(self.x, self.y)
+        self.level.scrn.add(self.cloak)
+
+    def is_cloaked(self):
+        return self.cloak and not self.cloak.destroyed()
+
+    def loop(self, time_passed):
+        if self.is_cloaked():
+            # move cloak along the tank
+            self.cloak.x = self.x
+            self.cloak.y = self.y
+            self.cloak.loop(time_passed)
 
 
 YELLOW_PLAYER, GREEN_PLAYER = 1, 2
@@ -132,23 +153,6 @@ def get_player_tank_images(position):
     else:
         image_set = ActiveDrawable.construct_image_set(image.green_tank_player)
     return image_set
-
-
-class PartnerTank(Tank):
-
-    def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
-        image_set = get_player_tank_images(play_position)
-        tankId = play_position
-        print "Initialize PartnerTank at {}-{}".format(x, y)
-        Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
-
-    def loop(self, time_passed):
-        """ Moving the partner tank along the current direction
-        This is an optimization. Updates are only received when partner tank change direction | action
-        instead of continuous updates, therefore, reducing the amount of data communicated over the network
-        """
-        if not self.stopped:
-            self.move(self.direction, time_passed)
 
 
 class InvincibleCloak(Drawable):
@@ -170,6 +174,25 @@ class InvincibleCloak(Drawable):
             self.destroy()
 
 
+class PartnerTank(Tank):
+
+    def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
+        image_set = get_player_tank_images(play_position)
+        tankId = play_position
+        print "Initialize PartnerTank at {}-{}".format(x, y)
+        Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
+        self.cloak_on()
+
+    def loop(self, time_passed):
+        """ Moving the partner tank along the current direction
+        This is an optimization. Updates are only received when partner tank change direction | action
+        instead of continuous updates, therefore, reducing the amount of data communicated over the network
+        """
+        Tank.loop(self, time_passed)
+        if not self.stopped:
+            self.move(self.direction, time_passed)
+
+
 class PlayerTank(Tank): 
 
     def __init__(self, level, play_position, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
@@ -181,13 +204,6 @@ class PlayerTank(Tank):
         self.direction_requested = []
         self.firing_requested = False
         self.cloak_on()
-
-    def cloak_on(self):
-        self.cloak = InvincibleCloak(self.x, self.y)
-        self.level.scrn.add(self.cloak)
-
-    def is_cloaked(self):
-        return self.cloak and not self.cloak.destroyed()
 
     def _send_movement_update(self, moving):
         server = self.level.server
@@ -201,6 +217,8 @@ class PlayerTank(Tank):
         server.send_message(message.TypeTankAction, tank_action)
 
     def loop(self, time_passed):
+        Tank.loop(self, time_passed)
+
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -252,11 +270,6 @@ class PlayerTank(Tank):
                 self.stopped = True
                 # send update that the tank is stopped
                 self._send_movement_update(moving=False)
-
-        if self.is_cloaked():
-            self.cloak.x = self.x
-            self.cloak.y = self.y
-            self.cloak.loop(time_passed)
 
 
 class SpawningLight(Drawable):
