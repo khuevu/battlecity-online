@@ -1,5 +1,6 @@
 import pygame
 import image
+import sound
 from model import Drawable, Text
 from model.screen import GameScreen
 import message
@@ -147,11 +148,13 @@ class BattleStage(Stage):
     def __init__(self, game, mapData):
         print "Create Battle Stage"
         Stage.__init__(self, game)
+
         # construct level
         self.level = Level(self.scrn, self.server, mapData, game.playerPosition)
+        sound.gamestart.play()
        
     def loop(self, time_passed): 
         # call level loop
-        return self.level.loop(time_passed) 
+        return self.level.loop(time_passed)
         # get the result if loop end
         # decide the next stage

@@ -1,6 +1,7 @@
 from model import Drawable
 from model.explosion import explode
 import image
+import sound
 import pygame
 
 
@@ -50,11 +51,25 @@ class Terrain(Drawable):
         return True if self.type == Terrain.BRICK or self.type == Terrain.STONE\
                        or self.type == Terrain.WATER else False
 
+    def _get_collide_sound(self):
+        if self.type == Terrain.BRICK:
+            return sound.brick
+        elif self.type == Terrain.STONE:
+            return sound.steel
+        else:
+            return None
+
     def hit(self, bullet):
         if not self.block_on_air():
             # Bullet can not hit terrain that doesn't block like water, bush
             return
 
+        # Play collision sound
+        collide_sound = self._get_collide_sound()
+        if collide_sound:
+            collide_sound.play()
+
+        # Check if bullet can destroy terrain and create explosion
         if bullet.power <= 100 and self.type == Terrain.STONE:
             # Normal bullet can't break stone
             return

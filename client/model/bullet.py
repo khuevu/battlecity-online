@@ -24,13 +24,6 @@ class Bullet(ActiveDrawable):
         if not moved:
             self.destroy()
 
-    # def explode(self):
-    #     ex_center = self.rect.center
-    #     # the dimension doesn't matter here because the explosion is a square.
-    #     ex_pos = (ex_center[0] - Explosion.SIZE_WIDTH / 2, ex_center[1] - Explosion.SIZE_HEIGHT / 2)
-    #     ex = Explosion(ex_pos)
-    #     ex.update(0)
-
     def move(self, time_passed):
         # Check if the next position in the current direction will lead to collisions
         next_pos, dx, dy = self.calc_next_pos(time_passed)

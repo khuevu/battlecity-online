@@ -1,4 +1,5 @@
 import image
+import sound
 from model import Drawable, ActiveDrawable
 from model.bullet import Bullet
 from model.explosion import explode
@@ -89,6 +90,7 @@ class Tank(ActiveDrawable):
         # Reset time
         self.last_fired = current_time
         # Success
+        sound.fire.play()
         return True
 
     def update_movement(self, x, y, direction, moving):
@@ -204,6 +206,7 @@ class PlayerTank(Tank):
         self.direction_requested = []
         self.firing_requested = False
         self.cloak_on()
+        self.moving_sound = None
 
     def _send_movement_update(self, moving):
         server = self.level.server
@@ -262,10 +265,10 @@ class PlayerTank(Tank):
                 self._send_movement_update(moving=True)
 
             self.stopped = not moved
-            #if not self.sound_channel or not self.sound_channel.get_busy():
-                #self.sound_channel = resource.sound_background.play()
+            if not self.moving_sound or not self.moving_sound.get_busy():
+                self.moving_sound = sound.moving.play()
         else:
-            #self.sound_channel = None  # need to deallocate the channel
+            self.moving_sound = None  # need to deallocate the channel
             if not self.stopped:
                 self.stopped = True
                 # send update that the tank is stopped
@@ -333,7 +336,4 @@ class EnemyTank(Tank):
     def hit(self, bullet):
         self.health -= bullet.power
         if self.health <= 0:
-            # self.destroy()
-            # self.level.register_explosion(explode(self))
-            # update server of tank destruction
             self._send_explode_action()

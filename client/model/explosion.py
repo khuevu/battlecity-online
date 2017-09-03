@@ -1,4 +1,5 @@
 import image
+import sound
 from model import Drawable
 import pygame
 
@@ -19,6 +20,7 @@ class Explosion(Drawable):
         # Explostion duration
         self.duration = 0
         self.active = True
+        sound.explosion.play()
 
     def loop(self, time_passed):
         self.duration += time_passed
