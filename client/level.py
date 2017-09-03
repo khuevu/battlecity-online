@@ -143,3 +143,6 @@ class Level(object):
         tank = self._get_tank_by_id(tank_id)
         tank.update_action(data.action)
 
+    def handle_user_input(self, event):
+        self.player.handle_user_input(event)
+

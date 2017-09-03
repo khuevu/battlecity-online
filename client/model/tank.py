@@ -222,31 +222,6 @@ class PlayerTank(Tank):
     def loop(self, time_passed):
         Tank.loop(self, time_passed)
 
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    self.firing_requested = True
-                elif event.key == pygame.K_UP:
-                    self.direction_requested.append(self.DIR_UP)
-                elif event.key == pygame.K_RIGHT:
-                    self.direction_requested.append(self.DIR_RIGHT)
-                elif event.key == pygame.K_DOWN:
-                    self.direction_requested.append(self.DIR_DOWN)
-                elif event.key == pygame.K_LEFT:
-                    self.direction_requested.append(self.DIR_LEFT)
-
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
-                    self.firing_requested = False
-                elif event.key == pygame.K_UP:
-                    self.direction_requested.remove(self.DIR_UP)
-                elif event.key == pygame.K_RIGHT:
-                    self.direction_requested.remove(self.DIR_RIGHT)
-                elif event.key == pygame.K_DOWN:
-                    self.direction_requested.remove(self.DIR_DOWN)
-                elif event.key == pygame.K_LEFT:
-                    self.direction_requested.remove(self.DIR_LEFT)
-
         if self.destroyed():
             return
 
@@ -273,6 +248,31 @@ class PlayerTank(Tank):
                 self.stopped = True
                 # send update that the tank is stopped
                 self._send_movement_update(moving=False)
+
+    def handle_user_input(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                self.firing_requested = True
+            elif event.key == pygame.K_UP:
+                self.direction_requested.append(self.DIR_UP)
+            elif event.key == pygame.K_RIGHT:
+                self.direction_requested.append(self.DIR_RIGHT)
+            elif event.key == pygame.K_DOWN:
+                self.direction_requested.append(self.DIR_DOWN)
+            elif event.key == pygame.K_LEFT:
+                self.direction_requested.append(self.DIR_LEFT)
+
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                self.firing_requested = False
+            elif event.key == pygame.K_UP:
+                self.direction_requested.remove(self.DIR_UP)
+            elif event.key == pygame.K_RIGHT:
+                self.direction_requested.remove(self.DIR_RIGHT)
+            elif event.key == pygame.K_DOWN:
+                self.direction_requested.remove(self.DIR_DOWN)
+            elif event.key == pygame.K_LEFT:
+                self.direction_requested.remove(self.DIR_LEFT)
 
 
 class SpawningLight(Drawable):

@@ -17,14 +17,18 @@ class Stage(object):
         self.server = game.server
         self.clock = pygame.time.Clock()
 
-    def loop(self, time_passed): 
-        pass
+    def loop(self, time_passed):
+        for event in pygame.event.get():
+            self.handle_user_input(event)
 
     def show(self): 
         time_passed = self.clock.tick(40)
         while self.loop(time_passed):
             self.scrn.draw()
             time_passed = self.clock.tick(40)
+
+    def handle_user_input(self, event):
+        pass
     
     def next_stage(self): 
         pass
@@ -66,7 +70,8 @@ class JoiningStage(Stage):
         self.scrn.add(self.notification)
         self.gameReady = False
 
-    def loop(self, time_passed): 
+    def loop(self, time_passed):
+        Stage.loop(self, time_passed)
         # Wait for other player to join
         msg = self.server.get_message()
         if msg: 
@@ -102,7 +107,8 @@ class PrepareLevelStage(Stage):
         self.startTime = None
         self.downloadedMap = None
 
-    def loop(self, time_passed): 
+    def loop(self, time_passed):
+        Stage.loop(self, time_passed)
         if self.state == self.STATE_NEW: 
             # Request for game start for map 
             print "Send request to server to start a new level"
@@ -153,8 +159,12 @@ class BattleStage(Stage):
         self.level = Level(self.scrn, self.server, mapData, game.playerPosition)
         sound.gamestart.play()
        
-    def loop(self, time_passed): 
+    def loop(self, time_passed):
+        Stage.loop(self, time_passed)
         # call level loop
         return self.level.loop(time_passed)
         # get the result if loop end
         # decide the next stage
+
+    def handle_user_input(self, event):
+        self.level.handle_user_input(event)
