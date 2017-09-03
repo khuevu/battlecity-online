@@ -64,6 +64,8 @@ private:
 
     char* d_msgBuffer;
 
+    Clock::Milliseconds d_timeSinceLastEnemyAdded;
+
     /**
      * @brief: Send messages to players. Messages are put in the buffer queue
      * to be flushed to the client
@@ -103,7 +105,7 @@ private:
     void onEnemyTankAdvance(const Tank& tank);
 
     // Create new enemy tank and it those to the list
-    void addNewEnemeyTank();
+    void addNewEnemeyTank(Clock::Milliseconds elapsedTime);
 
     // Get position to generate enemy tank
     bool findSpawningPosition(double* x, double* y);

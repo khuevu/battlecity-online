@@ -10,7 +10,8 @@
 namespace bt {
 
 namespace {
-    const int ENEMY_NUMBER = 2;
+    const int ENEMY_NUMBER = 10;
+    const Clock::Milliseconds ENEMY_SPAWN_RECHARGE_TIME = 2 * 1000;
 }
 
 const std::string GameContainer::MAP_RESOURCE_PATH = "levels/"; 
@@ -19,7 +20,8 @@ GameContainer::GameContainer(int levelNumber, std::vector<Player>& players) :
     d_id(levelNumber), d_players(players), 
     d_map(),
     d_state(NEW),
-    d_msgBuffer(new char[1024])
+    d_msgBuffer(new char[1024]),
+    d_timeSinceLastEnemyAdded(ENEMY_SPAWN_RECHARGE_TIME)
 {
     // load map data
     loadMap();
@@ -63,7 +65,7 @@ bool GameContainer::loop() {
         }
 
         // create enemy tanks 
-        addNewEnemeyTank();
+        addNewEnemeyTank(elapsedTime);
         //TODO: gen reward item
     }
 
@@ -252,16 +254,23 @@ void GameContainer::onEnemyTankAdvance(const Tank& tank) {
     std::cout << "Sent msg to update enemy tank movement of tank " << tank.id() << std::endl;
 }
 
-void GameContainer::addNewEnemeyTank() {
+void GameContainer::addNewEnemeyTank(Clock::Milliseconds elapsedTime) {
     if (d_enemyTanks.size() == ENEMY_NUMBER)
     {
         // Do not generate new tank if the number of tanks meet the limit
         return;
     }
 
-    // random the number of enemies going to be added, from 1 -> 3
-    int n = randInt(1, 3);
+    // only add new enemy after recharge time
+    d_timeSinceLastEnemyAdded += elapsedTime;
+    if (d_timeSinceLastEnemyAdded < ENEMY_SPAWN_RECHARGE_TIME)
+    {
+        return;
+    }
+
+    int n = randInt(1, 2);
     n = (ENEMY_NUMBER - d_enemyTanks.size()) >= n ? n : 0;
+    std::cout << "Generating new number of enemy " << n << std::endl;
 
     for (int i = 0; i != n; ++i) {
         // find the possible position of the tank
@@ -293,6 +302,8 @@ void GameContainer::addNewEnemeyTank() {
 
         //onEnemyTankAdvance(newTank);
     }
+
+    d_timeSinceLastEnemyAdded = 0;
 }
 
 
