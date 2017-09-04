@@ -42,9 +42,10 @@ class StatBar(Drawable):
         for icon in self.icons:
             icon.draw(screen)
 
-
-    def inc_enemy_killed(self):
-        self.n_enemy_killed += 1
+    def add_enemies_killed(self, n):
+        if n == 0:
+            return
+        self.n_enemy_killed += n
         self.icons[-self.n_enemy_killed].destroy()
 
     def all_enemies_killed(self):

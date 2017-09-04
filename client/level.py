@@ -68,6 +68,7 @@ class Level(object):
         # Loop enemies and clear destroyed
         for e in self.enemies:
             e.loop(time_passed)
+        n_enemey_killed = sum([1 for e in self.enemies if e.destroyed()])
         self.enemies = [e for e in self.enemies if not e.destroyed()]
 
         # Loop bullets and clear destroyed
@@ -82,6 +83,9 @@ class Level(object):
 
         # process server update
         self._process_server_msg()
+
+        # update stats
+        self.stats.add_enemies_killed(n_enemey_killed)
         return True
 
     def _process_server_msg(self): 
