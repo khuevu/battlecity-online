@@ -121,7 +121,9 @@ class Level(object):
                 self.add_to_screen(self.partner)
         else: 
             print "Create enemy tanks of type %d" % data.type
-            enemy_tank = EnemyTank(self, tank_id, data.type, data.x, data.y)
+            enemy_tank = EnemyTank(self, tank_id, tank_type=data.type,
+                                   x=data.x, y=data.y, speed=data.speed, health=data.health,
+                                   power=data.power, direction=data.direction)
             self.register_enemy(enemy_tank)
 
     def _is_partner_id(self, tank_id):

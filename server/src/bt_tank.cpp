@@ -53,6 +53,17 @@ const TankStat EnemyTank::STAT_FAST = TankStat(1, 0.13, 100, 100);
 const TankStat EnemyTank::STAT_POWER = TankStat(2, 0.08, 200, 100);
 const TankStat EnemyTank::STAT_ARMOR = TankStat(3, 0.08, 100, 400);
 
+TankStat EnemyTank::tankStatFromType(int type) {
+    static std::vector<TankStat> stats = {STAT_BASIC, STAT_FAST, STAT_POWER, STAT_ARMOR};
+    for (const auto& stat : stats) {
+        if (stat.type == type) {
+            return stat;
+        }
+    }
+
+    return STAT_BASIC;
+}
+
 EnemyTank::EnemyTank(int id, double x, double y,
                      TankStat stat, Direction d, GameContainer& g) :
     Tank(id, x, y, stat, d),

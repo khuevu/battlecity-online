@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # import font resource
     import font
-    
+
     # import sound resources
     import sound
 

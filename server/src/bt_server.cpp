@@ -72,29 +72,37 @@ void Server::receiveDataFromPlayers() {
 
 void Server::startGame() {
     int level(1); 
-    std::cout << "Next level: level " << level << std::endl; 
-    // Wait for request to start level
-    waitForPlayersReadyForNewLevel(); 
-    // run next level
-    runLevel(level); 
+
+    while (true) {
+        std::cout << "Starting new level: level " << level << std::endl;
+        // Wait for request to start level
+        waitForPlayersReadyForNewLevel();
+        // run next level
+        bool playerWon = runLevel(level);
+
+        if (playerWon) {
+            std::cout << "Player won. Loading next level" << std::endl;
+            level+= 1;
+        }
+        else {
+            std::cout << "Player lost :(" << std::endl;
+            break;
+        }
+    }
 }
 
-void Server::runLevel(int levelNumber) {
+bool Server::runLevel(int levelNumber) {
     // initialize level container
     GameContainer container(levelNumber, d_players); 
     // start game loop
-//    auto lastTickTime = std::chrono::steady_clock::now();
 
-    while (true) {
-//        auto currentTime = std::chrono::steady_clock::now();
-//        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTickTime).count();
+    while (container.loop()) {
         // read data from client sockets and store in player buffer to be
         // processed by the game logic
-        receiveDataFromPlayers(); 
-
-        container.loop();
-
+        receiveDataFromPlayers();
     }
+
+    return container.playerWin();
 }
 
 }

@@ -30,10 +30,19 @@ public:
 
     ~GameContainer();
 
-    // run GameContainer 
+    /**
+     * @brief: Game Loop.
+     * @return: false if the game is over, true otherwise
+     */
     bool loop();
 
-    
+    /**
+     * @brief: Return the result of the game
+     * @return true if players won
+     */
+    bool playerWin() const;
+
+
 private: 
     // GameContainer id
     int d_id; 
@@ -65,6 +74,8 @@ private:
     char* d_msgBuffer;
 
     Clock::Milliseconds d_timeSinceLastEnemyAdded;
+
+    bool d_playerWin;
 
     /**
      * @brief: Send messages to players. Messages are put in the buffer queue

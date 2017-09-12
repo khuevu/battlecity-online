@@ -132,6 +132,9 @@ public:
     static const TankStat STAT_FAST;
     static const TankStat STAT_POWER;
     static const TankStat STAT_ARMOR;
+
+    static TankStat tankStatFromType(int type);
+
     // time before tank can fire again
     static const int REQUIRED_RELOAD_TIME = 1000; // mislliseconds
     // time before tank can start moving

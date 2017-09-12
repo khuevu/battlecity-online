@@ -8,6 +8,10 @@ import message
 from util import currenttime_millis
 
 
+DEFENDER = 1;
+ATTACKER = 2;
+
+
 class Tank(ActiveDrawable):
 
     Z = 100
@@ -184,6 +188,7 @@ class PartnerTank(Tank):
         print "Initialize PartnerTank at {}-{}".format(x, y)
         Tank.__init__(self, level, tankId, x, y, image_set, speed, health, power, direction)
         self.cloak_on()
+        self.side = DEFENDER
 
     def loop(self, time_passed):
         """ Moving the partner tank along the current direction
@@ -207,6 +212,7 @@ class PlayerTank(Tank):
         self.firing_requested = False
         self.cloak_on()
         self.moving_sound = None
+        self.side = DEFENDER
 
     def _send_movement_update(self, moving):
         server = self.level.server
@@ -315,6 +321,7 @@ class EnemyTank(Tank):
     def __init__(self, level, tank_id, tank_type, x, y, speed=.08, health=100, power=100, direction=ActiveDrawable.DIR_UP):
         image_set = ActiveDrawable.construct_image_set(self.TYPE_IMAGES[tank_type])
         Tank.__init__(self, level, tank_id, x, y, image_set, speed, health, power, direction)
+        self.side = ATTACKER
         self._spawn()
 
     def loop(self, time_passed):

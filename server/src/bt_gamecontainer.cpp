@@ -33,6 +33,10 @@ GameContainer::~GameContainer()
     delete[] d_msgBuffer;
 }
 
+bool GameContainer::playerWin() const {
+    return d_playerWin;
+}
+
 bool GameContainer::loop() {
     // first send the map to all player
     if (d_state == NEW) {
@@ -139,6 +143,15 @@ void GameContainer::processConsensuses()
         // send update to client
         send(MsgTypeTankAction, (char*)msgAction, sizeof(*msgAction));
     }
+    else if (msgId == MsgTypeGameEnd)
+    {
+        const MsgGameEnd* msgGameEnd = (const MsgGameEnd*) d_msgBuffer;
+        // game over
+        std::cout << "Game over. Player win ? " << msgGameEnd->playerWin << std::endl;
+        // end game
+        d_playerWin = msgGameEnd->playerWin;
+        d_state = OVER;
+    }
 }
 
 
@@ -151,7 +164,7 @@ void GameContainer::processPlayerMsg(int playerId, unsigned char msgId, const ch
         d_consentBox.vote(playerId, MsgTypeLevelReady, NULL, 0);
     }
 
-    if (msgId == MsgTypeTankMovement) {
+    else if (msgId == MsgTypeTankMovement) {
         const MsgTankMovement* msgMovement = (const MsgTankMovement*) msg;
         std::cout << "Tank " << msgMovement->tankId << " change direction " << std::endl;
         // perform the move
@@ -164,7 +177,7 @@ void GameContainer::processPlayerMsg(int playerId, unsigned char msgId, const ch
         }
     }
 
-    if (msgId == MsgTypeTankAction) {
+    else if (msgId == MsgTypeTankAction) {
         const MsgTankAction* msgAction = (const MsgTankAction*) msg;
 
         std::cout << "Tank " << msgAction->tankId << " action: " << msgAction->action << std::endl;
@@ -183,6 +196,12 @@ void GameContainer::processPlayerMsg(int playerId, unsigned char msgId, const ch
                       << msgAction->tankId << std::endl;
             d_consentBox.vote(playerId, msgId, msg, sizeof(*msgAction));
         }
+    }
+
+    else if (msgId == MsgTypeGameEnd) {
+        const MsgGameEnd* msgGameEnd = (const MsgGameEnd*) msg;
+        std::cout << "Player " << playerId << " vote end game " << std::endl;
+        d_consentBox.vote(playerId, msgId, msg, sizeof(*msgGameEnd));
     }
 }
 
@@ -282,9 +301,10 @@ void GameContainer::addNewEnemeyTank(Clock::Milliseconds elapsedTime) {
             continue;
         }
 
-        // random the type of tank
         int enemyTankId = 3 + d_enemyTanks.size(); // offset
-        d_enemyTanks.push_back(EnemyTank(enemyTankId, spawnX, spawnY, EnemyTank::STAT_BASIC, Model::DOWN, *this));
+        // random the type of tank
+        auto stat = EnemyTank::tankStatFromType(randInt(0, 3));
+        d_enemyTanks.push_back(EnemyTank(enemyTankId, spawnX, spawnY, stat, Model::DOWN, *this));
         const EnemyTank& newTank = d_enemyTanks.back();
         // send tank generate event
         MsgTankCreation msgTankCreate;

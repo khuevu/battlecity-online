@@ -23,12 +23,7 @@ public:
     /**
      * @brief: Start Game
      */
-    void startGame(); 
-
-    /**
-     * @brief: play Level
-     */
-    void runLevel(int levelNumber); 
+    void startGame();
 
 private:
 
@@ -47,6 +42,12 @@ private:
 
     // wait for all players to ready for new level
     void waitForPlayersReadyForNewLevel();
+
+    /**
+     * @brief: play Level
+     * @return: true if player won
+     */
+    bool runLevel(int levelNumber);
 };
 
 }

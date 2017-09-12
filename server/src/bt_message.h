@@ -15,7 +15,8 @@ enum MessageType {
     MsgTypeTankCreation,
     MsgTypeTankMovement,
     MsgTypeTankAction,
-    MsgTypeTankStateInfo
+    MsgTypeTankStateInfo,
+    MsgTypeGameEnd
 };
 
 class GameMessage {
@@ -66,6 +67,11 @@ struct MsgTankAction : GameMessage {
     {
         return tankId == other.tankId && action == other.action;
     }
+};
+
+
+struct MsgGameEnd {
+    bool playerWin;
 };
 
 

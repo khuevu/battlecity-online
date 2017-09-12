@@ -39,7 +39,8 @@ class Bullet(ActiveDrawable):
 
         # Check for collision with other tanks
         for tank in self.level.tanks:
-            if self.owner != tank and tank.visible() and tank.collide(next_pos):
+            if self.owner != tank and self.owner.side != tank.side\
+                    and tank.visible() and tank.collide(next_pos):
                 tank.hit(self)
                 return False
 
