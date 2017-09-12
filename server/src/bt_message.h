@@ -19,27 +19,23 @@ enum MessageType {
     MsgTypeGameEnd
 };
 
-class GameMessage {
-
-};
-
-struct MsgConfig : GameMessage {
+struct MsgConfig {
     unsigned char position;
 };
 
-struct MsgRequestGameStart : GameMessage {
+struct MsgRequestGameStart {
     unsigned char levelNumber;
 };
 
-struct MsgMapData : GameMessage {
+struct MsgMapData {
     char map[Map::GRID_SIZE][Map::GRID_SIZE];
 };
 
-struct MsgLevelStart : GameMessage {
+struct MsgLevelStart {
     unsigned long startTime; 
 };
 
-struct MsgTankCreation : GameMessage {
+struct MsgTankCreation {
     unsigned char tankId;
     unsigned char type;
     unsigned char direction; 
@@ -51,7 +47,7 @@ struct MsgTankCreation : GameMessage {
 };
 
 // message data
-struct MsgTankMovement : GameMessage {
+struct MsgTankMovement {
     unsigned char tankId; 
     unsigned char direction;
     unsigned char moving;
@@ -59,7 +55,7 @@ struct MsgTankMovement : GameMessage {
     double y; 
 };
 
-struct MsgTankAction : GameMessage {
+struct MsgTankAction {
     unsigned char tankId;
     unsigned char action;
 
@@ -71,7 +67,8 @@ struct MsgTankAction : GameMessage {
 
 
 struct MsgGameEnd {
-    bool playerWin;
+    unsigned char tankId;
+    unsigned char playerWin;
 };
 
 
