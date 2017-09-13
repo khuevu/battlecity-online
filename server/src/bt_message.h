@@ -15,7 +15,6 @@ enum MessageType {
     MsgTypeTankCreation,
     MsgTypeTankMovement,
     MsgTypeTankAction,
-    MsgTypeTankStateInfo,
     MsgTypeGameEnd
 };
 
@@ -67,7 +66,6 @@ struct MsgTankAction {
 
 
 struct MsgGameEnd {
-    unsigned char tankId;
     unsigned char playerWin;
 };
 

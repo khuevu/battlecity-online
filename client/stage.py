@@ -157,14 +157,22 @@ class BattleStage(Stage):
 
         # construct level
         self.level = Level(self.scrn, self.server, mapData, game.playerPosition)
+        self.nxt = None
         sound.gamestart.play()
        
     def loop(self, time_passed):
         Stage.loop(self, time_passed)
         # call level loop
-        return self.level.loop(time_passed)
+        level_continue = self.level.loop(time_passed)
         # get the result if loop end
-        # decide the next stage
+        if not level_continue:
+            # decide the next stage
+            if self.level.win:
+                self.nxt = PrepareLevelStage(self.game)
+        return level_continue
 
     def handle_user_input(self, event):
         self.level.handle_user_input(event)
+
+    def next_stage(self):
+        return self.nxt

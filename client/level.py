@@ -7,11 +7,11 @@ import message
 
 class Level(object): 
 
-    def __init__(self, gameScreen, server, mapData, playerPosition): 
+    def __init__(self, game_screen, server, map_data, player_position):
         self.server = server
-        self.playerPosition = playerPosition
+        self.playerPosition = player_position
         # screen and engine should be private and updated through the add method
-        self.scrn = gameScreen 
+        self.scrn = game_screen
         # Level objects
         # Player tanks
         self.player = None
@@ -22,8 +22,9 @@ class Level(object):
         self.bullets = []
         # Explosions
         self.explosions = []
-        self._init_map(map_data=mapData)
+        self._init_map(map_data=map_data)
         # Add the object to be drawn
+        self.win = False
 
     def _init_map(self, map_data):
         self.map = Map(self, map_data)
@@ -86,6 +87,21 @@ class Level(object):
 
         # update stats
         self.stats.add_enemies_killed(n_enemey_killed)
+
+        if self.stats.all_enemies_killed():
+            # signal to server game over, player win
+            self.win = True
+            self.on_game_over(self.win)
+            return False
+        elif self.player.destroyed() and self.partner.destroyed():
+            self.win = False
+            self.on_game_over(self.win)
+            return False
+        elif self.castle.destroyed():
+            self.win = False
+            self.on_game_over(self.win)
+            return False
+
         return True
 
     def _process_server_msg(self): 
@@ -152,3 +168,6 @@ class Level(object):
     def handle_user_input(self, event):
         self.player.handle_user_input(event)
 
+    def on_game_over(self, player_win):
+        msg = message.MsgGameEnd(player_win)
+        self.server.send_message(message.TypeGameEnd, msg)

@@ -9,7 +9,8 @@ TypeLevelReady, \
 TypeLevelStart, \
 TypeTankCreation, \
 TypeTankMovement, \
-TypeTankAction = range(9)
+TypeTankAction, \
+TypeGameEnd = range(10)
 
 
 class MsgConfig(object): 
@@ -80,6 +81,17 @@ class MsgTankAction(object):
 
     def serialize(self):
         return struct.pack(self.FORMAT, self.id, self.action)
+
+
+class MsgGameEnd(object):
+
+    FORMAT = 'B'
+
+    def __init__(self, win):
+        self.win = win
+
+    def serialize(self):
+        return struct.pack(self.FORMAT, self.win)
 
 
 def deserialize(msgType, msg): 
