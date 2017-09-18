@@ -116,7 +116,8 @@ void GameContainer::processConsensuses()
         std::cout << "All players has received map data and ready to start level" << std::endl;
         // when the player are all ready
         // get the estimated time to communicate to both player (ms)
-        Clock::Milliseconds comTime = d_clock.tick();
+        //Clock::Milliseconds comTime = d_clock.tick();
+        Clock::Milliseconds comTime = 2000;
         // level start time
         d_gameStartTime = comTime * 2 + currentTimeInMilliseconds();
         // set game to ready

@@ -48,14 +48,19 @@ class StartStage(Stage):
         self.scrn.add(startText)
         tankIcon = Drawable(pygame.Rect((100, 250), (32, 32)), image.yellow_tank_player)
         self.scrn.add(tankIcon)
+        self.waiting = True
 
-    def loop(self, time_passed): 
-       	for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                print "Player chose to continue the game"
-                return False
-                break
-        return True
+    def loop(self, time_passed):
+        Stage.loop(self, time_passed)
+        if self.waiting:
+            return True
+        else:
+            return False
+
+    def handle_user_input(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            print("Player chose to continue the game")
+            self.waiting = False
 
     def next_stage(self): 
         print "Start connecting to server"
@@ -106,6 +111,7 @@ class PrepareLevelStage(Stage):
         self.state = self.STATE_NEW
         self.startTime = None
         self.downloadedMap = None
+        self.user_ready = False
 
     def loop(self, time_passed):
         Stage.loop(self, time_passed)
@@ -125,25 +131,36 @@ class PrepareLevelStage(Stage):
                 print "Map Data: {}".format(m_d.map)
                 self.downloadedMap = m_d.map
 
-                # Send acknowledgement to server
-                self.server.send_message(message.TypeLevelReady)
+                self.notification = Text((80, 200), text="Battle Ready. Press Enter to Start", font_size=12)
+                self.scrn.add(self.notification)
                 self.state = self.STATE_WAIT_START
 
         elif self.state == self.STATE_WAIT_START:
-            if self.startTime is None: 
+            if self.startTime is None:
                 msg = self.server.get_message()
-                m_t, m_d = msg
-                assert m_t == message.TypeLevelStart
-                print "Level should starts at", m_d.startTime 
-                self.startTime = m_d.startTime
+                if msg:
+                    m_t, m_d = msg
+                    assert m_t == message.TypeLevelStart
+                    print "Level should starts at", m_d.startTime
+                    self.startTime = m_d.startTime
+                    self.notification.set_content("Starting in "
+                                                  + str((self.startTime - currenttime_millis()) / 1000) + "seconds")
 
             elif self.startTime and self.startTime <= currenttime_millis():
                 print "Starting new level"
                 # stop the current stage
                 return False
+
         return True
-                      
-    def next_stage(self): 
+
+    def handle_user_input(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and not self.user_ready:
+            self.user_ready = True
+            # Send acknowledgement to server
+            self.server.send_message(message.TypeLevelReady)
+            self.notification.set_content("Loading ...")
+
+    def next_stage(self):
         return BattleStage(self.game, self.downloadedMap)
 
 

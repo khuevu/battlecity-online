@@ -166,7 +166,8 @@ class Level(object):
         tank.update_action(data.action)
 
     def handle_user_input(self, event):
-        self.player.handle_user_input(event)
+        if self.player:
+            self.player.handle_user_input(event)
 
     def on_game_over(self, player_win):
         msg = message.MsgGameEnd(player_win)
